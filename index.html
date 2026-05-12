@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zilloah — Dashboard Operacional</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F8F5F0;color:#1C1C1E}
+.bar{background:#0F1B2D;padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.bar-t{color:#C9A55A;font-size:17px;font-weight:600;letter-spacing:.5px}
+.bar-s{color:#8A8A8E;font-size:11px;margin-top:2px}
+.wrap{max-width:1300px;margin:0 auto;padding:20px 24px}
+.tabs{display:flex;gap:8px;margin-bottom:1.4rem;flex-wrap:wrap}
+.tab{padding:7px 18px;font-size:13px;border:1px solid #ddd;border-radius:24px;cursor:pointer;background:#fff;color:#5A5A5A;font-weight:500}
+.tab.on{background:#0F1B2D;color:#C9A55A;border-color:#0F1B2D}
+.sec{display:none}.sec.on{display:block}
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.4rem}
+.kcard{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #E8E0D8}
+.kl{font-size:11px;color:#8A8A8E;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.kv{font-size:22px;font-weight:600;color:#0F1B2D}
+.ks{font-size:11px;color:#B0A898;margin-top:2px}
+.box{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:1.1rem;border:1px solid #E8E0D8}
+.bt{font-size:13px;font-weight:600;color:#0F1B2D;margin-bottom:10px}
+.trow{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #F0EBE3;font-size:12px;min-height:52px}
+.trow:last-child{border-bottom:none}
+.tn{font-size:10px;color:#B0A898;width:18px;text-align:right;flex-shrink:0}
+.tref{font-size:10px;font-weight:700;color:#185FA5;width:78px;flex-shrink:0;font-family:monospace}
+.tname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1C1C1E}
+.tval{font-size:11px;color:#5A5A5A;text-align:right;flex-shrink:0}
+.thdr{display:flex;gap:8px;font-size:10px;font-weight:700;color:#8A8A8E;padding:0 0 7px;border-bottom:1px solid #E8E0D8;text-transform:uppercase;letter-spacing:.4px}
+.abox{border-radius:8px;padding:11px 14px;margin-bottom:9px;font-size:12px;border-left:4px solid}
+.ar{background:#FFF0F0;border-color:#E24B4A;color:#501313}
+.aa{background:#FFF8EE;border-color:#EF9F27;color:#412402}
+.ag{background:#F0FAE8;border-color:#639922;color:#173404}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.1rem}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div><div class="bar-t">ZILLOAH — Dashboard Operacional</div><div class="bar-s">mai/2026 — Atualizado em tempo real</div></div>
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAiYYAAF0CAYAAAAXYPInAAEAAElEQVR4nOy9ebxkZ33n/36es9dy9773TjobgRCSsAWBsCuLgo7M6DBOQAXFQUV01HF3HEEYdFRwQUThJ+OCooLiAoOyhyUBEghJOp2k03vfvZZTZ3u+vz9OnXPr3r6dNNCdpDvPO6+TvktV3apTZ3/O9/l81VYLJZZHJUollFI4joMxhqIo1r2d4zirflfdpygK8jzHGMPQ0BCO4+A4DkVRcOedd1JUNXPN5QrFYrFYLBaLxWKxWCwWi8ViOQ8Z1a3bti0yMTFBHMeMjY3R6/VoNBr1+4eMDQ1x+PBhYrEo1lh7rVgsFovFYrFYLBaLxWKxWMyKAR4OHDgA5iFWqxX19EM4b/eV5xX9+fLGDtRUqq/8sNZwsfIAQ7C/xqqzXc7GrPU37LAi6+tL7GVEU9sPVqvvVgS9YS3I1l6KCVt2PYDIo4UqVdIGNQzTlB3YE10d8IVUnVVy5BKr2kfJEJW6E1l+aI0bxBkJWiDV4GHNvnF64T8KYd7qcNRhPVvKtlWKN1yNKv1SvMfWGpW3CrVGLfKZcEVWFEj8lqq72tBNcx5wVIXqqyCKM1K6wSxYv3bG/aW03rRnXRJzVjRHIH8tV8ZMvqwppVHhkDI8LmxPZM5eEzN8Lxj8pWuaqfJHHr5FhF8u9r5/KPKWKLQjRhYNDrP4RVCVjgBtGquJC21p7TDX2GuAGGfIH8ubIGTLfBfVdPZMlnYMyLQjfW1jDI+eXKIp+eOLg8xNPMvJkuVJMqiCfnXIkDqJpYQFDCNfjE8/Wq5bRVDrjGQgJnlSbWCJvwxLSwEZh3rGKqHrqvvZlYD/MflU3G17hy0HU8u4qm4+xT6LMlDquAAm5AzFwX+CYRguzxD0O0CKXNIf6FBjVIqrqkKT2YC3x6TTVy5sQSXX+vkv7KXfDwPdEK3fPq/yJoJOBXsL0YJZOoEt/KwVU0sFh7VEtuJeJpzOqKm7F7SqUl3cLbfaqpYq0qLGEHU4AuWr0FH0R0ylTvQVqwPWwEIGrZMvHXGYBSQmqkVWbDL9aKOzjZJaQVgHNQ8QpIqiZiPNv7SPQ7/1jKl+5N6TZK3qv0i1nQE6xAWhjN8l8tXk5UhvpvCHPRakrE5QK0Ps8UxSYUYlwBPMz7B5RlyAIGRe8pV8CfRLz+kCgRIQhPb5rM0PwX2+aZHy/FroNKfEwG2dBJHGbP8gPlFaGR1iP8f8GzVkgO0AO4aCPX/Y6T1B4d31y+OjAuOwpvCJWJjGJmFJfKSIzKJzSFfN+6qXvWIk6HhMz+TfmP6E1z8KvDMDTxUYJEQSl8i5D5zP9KDrSmWNnpCUE7emwDSVVg9iUKpk/CWXDlN1FWZZ2+3OnqAFSMrUv5aH4F5uRVo7wqVdxrsgIZKe8hVbY/DfvzJTFHvVfr3uKfM8W2g7CdQiGHJwMPOK0u8dLLRpEkZCa5YY2jU23w1ULkNYvj2u1P9vMVK3m5V3wYKB3v2qz8LMPJj8s+5ZQYuiJw/xhCQ9RR/n8YN7qFGQNHn2+2P9myrpKp2u8cV3OA/OWGDNL+AJ+rKGzSKNWVGdz6f/kCQZX4LCVG/yLGZ8OqNNrSNFIXhsdZOGMJMxV2CQuLiF5TGdZDNe7GEBvrmzAuMJ0lPCqQu4Zs3ujnYuXGYLJXxLKvxFQfIiBkqCjXhLuRVTi8ajSWjxblzXLi3j3xpHzpPfDNp7SZq+fwOgkdGPM2wHm2iiBdHtXqYLjL/BX8R6cqTVb8mvL4tEWJEEXi0rH7Qb6s8E6lIRUlGFaHbX2hzLfHVp31T4sW+T6YmVVAMUhwVfLf5cFvDvEfLfwHW+t3YTXR0H1IhP8A==" width="120" alt="Zilloah">
+</div>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab on" onclick="tg(0)">📊 Hoje</div>
+    <div class="tab" onclick="tg(1)">📈 30 dias</div>
+    <div class="tab" onclick="tg(2)">👥 Clientes</div>
+    <div class="tab" onclick="tg(3)">🏪 Estoque</div>
+    <div class="tab" onclick="tg(4)">👩‍💼 Vendedoras</div>
+  </div>
+
+  <!-- TAB 0: HOJE -->
+  <div class="sec on">
+    <div class="krow">
+      <div class="kcard">
+        <div class="kl">Faturamento</div>
+        <div class="kv">R$ 39.245</div>
+        <div class="ks">200 vendas</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Ticket Médio</div>
+        <div class="kv">R$ 196,23</div>
+        <div class="ks">de 200 vendas</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Top Vendedora</div>
+        <div class="kv">Carolina G.</div>
+        <div class="ks">R$ 1.505,10</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Top Cliente</div>
+        <div class="kv">Carolina G.</div>
+        <div class="ks">R$ 269,10</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="bt">Últimas Vendas de Hoje</div>
+      <div class="thdr">
+        <div style="width:60px">Horário</div>
+        <div style="flex:1">Vendedora</div>
+        <div style="width:130px;text-align:right">Valor</div>
+        <div style="flex:1">Cliente</div>
+      </div>
+      <div class="trow"><div style="width:60px">13:57</div><div style="flex:1">Vitória</div><div style="width:130px;text-align:right">R$ 269,10</div><div style="flex:1">Carolina Guimarães</div></div>
+      <div class="trow"><div style="width:60px">11:44</div><div style="flex:1">Fabiana</div><div style="width:130px;text-align:right">R$ 205,00</div><div style="flex:1">Camila</div></div>
+      <div class="trow"><div style="width:60px">14:50</div><div style="flex:1">Paula Camilo Godói</div><div style="width:130px;text-align:right">R$ 130,00</div><div style="flex:1">Camila</div></div>
+      <div class="trow"><div style="width:60px">14:53</div><div style="flex:1">Angélica</div><div style="width:130px;text-align:right">R$ 99,00</div><div style="flex:1">Erica</div></div>
+      <div class="trow"><div style="width:60px">14:56</div><div style="flex:1">Janice Cabral</div><div style="width:130px;text-align:right">R$ 776,00</div><div style="flex:1">Carolina Guimarães</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 1: 30 DIAS -->
+  <div class="sec">
+    <div class="krow">
+      <div class="kcard">
+        <div class="kl">Faturamento</div>
+        <div class="kv">R$ 184.883</div>
+        <div class="ks">6.393 vendas</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Margem Bruta</div>
+        <div class="kv">R$ 154.190</div>
+        <div class="ks">83,4% do faturamento</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Ticket Médio</div>
+        <div class="kv">R$ 184,88</div>
+        <div class="ks">últimos 30 dias</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Taxa Cancelamento</div>
+        <div class="kv">0,91%</div>
+        <div class="ks">9 canceladas</div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="box">
+        <div class="bt">Top 3 Vendedoras (30d)</div>
+        <div class="thdr"><div style="flex:1">Vendedora</div><div style="width:100px;text-align:right">Faturamento</div></div>
+        <div class="trow"><div style="flex:1">Camila</div><div style="width:100px;text-align:right">R$ 64.826</div></div>
+        <div class="trow"><div style="flex:1">Evelyn</div><div style="width:100px;text-align:right">R$ 58.238</div></div>
+        <div class="trow"><div style="flex:1">Yasmin</div><div style="width:100px;text-align:right">R$ 20.376</div></div>
+      </div>
+      <div class="box">
+        <div class="bt">Análise Rápida</div>
+        <div class="abox ag">✓ Margem saudável: 83,4% do faturamento convertido</div>
+        <div class="abox aa">⚠ Taxa cancelamento: 0,91% (baixa, OK)</div>
+        <div class="abox ag">✓ Vendas bem distribuídas entre vendedoras</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: CLIENTES -->
+  <div class="sec">
+    <div class="krow">
+      <div class="kcard">
+        <div class="kl">Total de Clientes</div>
+        <div class="kv">1.000+</div>
+        <div class="ks">base completa</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Top Cliente</div>
+        <div class="kv">? (desconhecido)</div>
+        <div class="ks">R$ 124.443,99</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">2º Top Cliente</div>
+        <div class="kv">Victoria Carolina</div>
+        <div class="ks">R$ 5.056,00</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Ticket Médio (Top)</div>
+        <div class="kv">R$ 173,32</div>
+        <div class="ks">cliente #1</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="bt">Top 10 Clientes por Faturamento</div>
+      <div class="thdr">
+        <div style="width:30px">#</div>
+        <div style="flex:1">Cliente</div>
+        <div style="width:80px;text-align:right">Compras</div>
+        <div style="width:120px;text-align:right">Faturamento</div>
+        <div style="width:100px;text-align:right">Ticket</div>
+      </div>
+      <div class="trow"><div style="width:30px">1</div><div style="flex:1">? (Desconhecido)</div><div style="width:80px;text-align:right">718</div><div style="width:120px;text-align:right">R$ 124.443,99</div><div style="width:100px;text-align:right">R$ 173,32</div></div>
+      <div class="trow"><div style="width:30px">2</div><div style="flex:1">Victoria Carolina</div><div style="width:80px;text-align:right">11</div><div style="width:120px;text-align:right">R$ 5.056,00</div><div style="width:100px;text-align:right">R$ 459,64</div></div>
+      <div class="trow"><div style="width:30px">3</div><div style="flex:1">? (Desconhecido)</div><div style="width:80px;text-align:right">3</div><div style="width:120px;text-align:right">R$ 3.395,40</div><div style="width:100px;text-align:right">R$ 1.131,80</div></div>
+      <div class="trow"><div style="width:30px">4</div><div style="flex:1">? (Desconhecido)</div><div style="width:80px;text-align:right">2</div><div style="width:120px;text-align:right">R$ 3.136,00</div><div style="width:100px;text-align:right">R$ 1.568,00</div></div>
+      <div class="trow"><div style="width:30px">5</div><div style="flex:1">Janice Cabral</div><div style="width:80px;text-align:right">7</div><div style="width:120px;text-align:right">R$ 2.897,80</div><div style="width:100px;text-align:right">R$ 413,97</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: ESTOQUE -->
+  <div class="sec">
+    <div class="krow">
+      <div class="kcard">
+        <div class="kl">Produtos Parados</div>
+        <div class="kv">97</div>
+        <div class="ks">há mais de 365 dias</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Capital Imobilizado</div>
+        <div class="kv">R$ 28.507,99</div>
+        <div class="ks">em estoque morto</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Produto #1 Morto</div>
+        <div class="kv">Colar Prata</div>
+        <div class="ks">R$ 2.889,99 | 594d</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Ação Recomendada</div>
+        <div class="kv">Liquidação</div>
+        <div class="ks">de itens parados</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="bt">Top 10 Produtos - Capital Imobilizado</div>
+      <div class="thdr">
+        <div style="width:30px">#</div>
+        <div style="flex:1">Produto</div>
+        <div style="width:60px;text-align:center">Un.</div>
+        <div style="width:100px;text-align:right">Unitário</div>
+        <div style="width:100px;text-align:right">Total</div>
+        <div style="width:60px;text-align:right">Dias</div>
+      </div>
+      <div class="trow"><div style="width:30px">1</div><div style="flex:1">Colar em Prata Vintage - Perola/Cristal</div><div style="width:60px;text-align:center">1</div><div style="width:100px;text-align:right">R$ 2.889,99</div><div style="width:100px;text-align:right">R$ 2.889,99</div><div style="width:60px;text-align:right">594d</div></div>
+      <div class="trow"><div style="width:30px">2</div><div style="flex:1">Anel Folheado a Ouro Zircônia</div><div style="width:60px;text-align:center">7</div><div style="width:100px;text-align:right">R$ 149,00</div><div style="width:100px;text-align:right">R$ 1.043,00</div><div style="width:60px;text-align:right">588d</div></div>
+      <div class="trow"><div style="width:30px">3</div><div style="flex:1">Anel em Prata Lisa - Ferradura</div><div style="width:60px;text-align:center">3</div><div style="width:100px;text-align:right">R$ 279,00</div><div style="width:100px;text-align:right">R$ 837,00</div><div style="width:60px;text-align:right">662d</div></div>
+      <div class="trow"><div style="width:30px">4</div><div style="flex:1">Pulseira em Prata - Bali Pikun 4 Fileira</div><div style="width:60px;text-align:center">1</div><div style="width:100px;text-align:right">R$ 799,00</div><div style="width:100px;text-align:right">R$ 799,00</div><div style="width:60px;text-align:right">662d</div></div>
+      <div class="trow"><div style="width:30px">5</div><div style="flex:1">Colar em Prata Lisa - Costela de Adão</div><div style="width:60px;text-align:center">3</div><div style="width:100px;text-align:right">R$ 229,00</div><div style="width:100px;text-align:right">R$ 687,00</div><div style="width:60px;text-align:right">594d</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: VENDEDORAS -->
+  <div class="sec">
+    <div class="krow">
+      <div class="kcard">
+        <div class="kl">Total de Vendedoras</div>
+        <div class="kv">22</div>
+        <div class="ks">equipe ativa</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Faturamento Total</div>
+        <div class="kv">R$ 1.083.966</div>
+        <div class="ks">histórico completo</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Top Vendedora</div>
+        <div class="kv">Evelyn</div>
+        <div class="ks">R$ 299.523,45 | 27,6%</div>
+      </div>
+      <div class="kcard">
+        <div class="kl">Concentração Top 2</div>
+        <div class="kv">45,7%</div>
+        <div class="ks">Evelyn + Vitória</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="bt">Ranking Completo de Vendedoras</div>
+      <div class="thdr">
+        <div style="width:30px">#</div>
+        <div style="flex:1">Vendedora</div>
+        <div style="width:100px;text-align:right">Faturamento</div>
+        <div style="width:70px;text-align:right">Vendas</div>
+        <div style="width:100px;text-align:right">Ticket</div>
+        <div style="width:60px;text-align:right">%</div>
+      </div>
+      <div class="trow"><div style="width:30px">1</div><div style="flex:1">Evelyn</div><div style="width:100px;text-align:right">R$ 299.523,45</div><div style="width:70px;text-align:right">2.015</div><div style="width:100px;text-align:right">R$ 148,65</div><div style="width:60px;text-align:right">27,6%</div></div>
+      <div class="trow"><div style="width:30px">2</div><div style="flex:1">Vitória</div><div style="width:100px;text-align:right">R$ 196.338,90</div><div style="width:70px;text-align:right">728</div><div style="width:100px;text-align:right">R$ 269,70</div><div style="width:60px;text-align:right">18,1%</div></div>
+      <div class="trow"><div style="width:30px">3</div><div style="flex:1">Luciana</div><div style="width:100px;text-align:right">R$ 98.379,20</div><div style="width:70px;text-align:right">639</div><div style="width:100px;text-align:right">R$ 153,96</div><div style="width:60px;text-align:right">9,1%</div></div>
+      <div class="trow"><div style="width:30px">4</div><div style="flex:1">Camila</div><div style="width:100px;text-align:right">R$ 80.018,14</div><div style="width:70px;text-align:right">472</div><div style="width:100px;text-align:right">R$ 169,53</div><div style="width:60px;text-align:right">7,4%</div></div>
+      <div class="trow"><div style="width:30px">5</div><div style="flex:1">Lara</div><div style="width:100px;text-align:right">R$ 71.743,24</div><div style="width:70px;text-align:right">363</div><div style="width:100px;text-align:right">R$ 197,64</div><div style="width:60px;text-align:right">6,6%</div></div>
+      <div class="trow"><div style="width:30px">6</div><div style="flex:1">Carolina Guimarães</div><div style="width:100px;text-align:right">R$ 67.678,49</div><div style="width:70px;text-align:right">570</div><div style="width:100px;text-align:right">R$ 118,73</div><div style="width:60px;text-align:right">6,2%</div></div>
+      <div class="trow"><div style="width:30px">7</div><div style="flex:1">Alessandra</div><div style="width:100px;text-align:right">R$ 60.987,45</div><div style="width:70px;text-align:right">332</div><div style="width:100px;text-align:right">R$ 183,70</div><div style="width:60px;text-align:right">5,6%</div></div>
+      <div class="trow"><div style="width:30px">8</div><div style="flex:1">Bárbara</div><div style="width:100px;text-align:right">R$ 55.782,86</div><div style="width:70px;text-align:right">278</div><div style="width:100px;text-align:right">R$ 200,66</div><div style="width:60px;text-align:right">5,1%</div></div>
+      <div class="trow"><div style="width:30px">9</div><div style="flex:1">Letícia</div><div style="width:100px;text-align:right">R$ 50.870,95</div><div style="width:70px;text-align:right">229</div><div style="width:100px;text-align:right">R$ 222,14</div><div style="width:60px;text-align:right">4,7%</div></div>
+      <div class="trow"><div style="width:30px">10</div><div style="flex:1">Yasmin</div><div style="width:100px;text-align:right">R$ 22.204,14</div><div style="width:70px;text-align:right">128</div><div style="width:100px;text-align:right">R$ 173,47</div><div style="width:60px;text-align:right">2,0%</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function tg(i){
+  const tabs = document.querySelectorAll('.tab');
+  const secs = document.querySelectorAll('.sec');
+  tabs.forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  secs.forEach((s,idx)=>s.classList.toggle('on',idx===i));
+}
+</script>
+</body>
+</html>
