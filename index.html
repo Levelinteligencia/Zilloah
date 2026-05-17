@@ -2,290 +2,200 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ZILLOAH — Dashboard Operacional</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2230;--border:rgba(255,255,255,.07);--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--gold:#c9a84c;--teal:#1d9e75;--teal2:#5dcaa5;--red:#f85149}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{font-size:15px;font-weight:600;color:var(--gold)}
-.cli-n{font-size:15px;font-weight:600;color:var(--gold)}
-.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0}
-.tab{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;background:none;border:none;transition:color .2s}
-.tab:hover{color:var(--text2)}
-.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+body{font-family:'Sora',sans-serif;background:#0d1117;color:#e6edf3;font-size:14px;min-height:100vh}
+.hdr{background:#161b22;border-bottom:1px solid rgba(255,255,255,.1);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:18px;font-weight:700;color:#c9a84c}
+.nav{background:#161b22;border-bottom:1px solid rgba(255,255,255,.1);padding:0 32px;display:flex;gap:0}
+.tab{padding:14px 18px;background:none;border:none;color:#6e7681;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:'Sora',sans-serif}
+.tab:hover{color:#8b949e}
+.tab.active{color:#c9a84c;border-bottom-color:#c9a84c}
 .main{padding:24px 32px}
 .tc{display:none}
 .tc.active{display:block}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px}
-.cl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
-.cv{font-size:24px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;margin:8px 0}
-.cs{font-size:11px;color:var(--text3)}
-.cc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px}
-.cct{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
-.ccs{font-size:11px;color:var(--text3);margin-bottom:12px}
+.card{background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:20px}
+.cl{font-size:10px;text-transform:uppercase;color:#6e7681;margin-bottom:8px;font-weight:600;letter-spacing:.5px}
+.cv{font-size:24px;font-weight:700;color:#e6edf3;font-family:monospace;margin:8px 0}
+.cs{font-size:11px;color:#6e7681;margin-top:4px}
+.cc{background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:20px;margin-bottom:16px}
+.cct{font-size:12px;font-weight:600;color:#8b949e;text-transform:uppercase;margin-bottom:4px}
+.ccs{font-size:11px;color:#6e7681;margin-bottom:12px}
 table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
-th{text-align:left;padding:10px 8px;border-bottom:1px solid var(--border);color:var(--text3);font-weight:600;text-transform:uppercase;font-size:10px}
-td{padding:10px 8px;border-bottom:1px solid var(--border);color:var(--text2)}
-.banner{border-radius:6px;padding:10px 14px;font-size:11px;margin-bottom:16px;display:none}
-.banner.show{display:block}
-.ban-ok{background:rgba(29,158,117,.1);color:var(--teal2)}
-.ban-load{background:var(--bg3);color:var(--text3)}
+th{text-align:left;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.1);color:#6e7681;font-weight:600;text-transform:uppercase;font-size:10px}
+td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.1);color:#8b949e}
+tr:hover td{background:rgba(255,255,255,.02)}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
+
 <header class="hdr">
-  <div style="display:flex;align-items:center;gap:16px">
-    <div class="logo">ZILLOAH</div>
-  </div>
-  <div style="font-size:11px;color:var(--text3)" id="upd">--:--:--</div>
+<div style="display:flex;align-items:center;gap:16px">
+<div class="logo">📊 ZILLOAH Dashboard</div>
+</div>
+<div style="font-size:11px;color:#6e7681">Dados reais · Jueri API</div>
 </header>
 
-<nav class="tabs">
-  <button class="tab active" onclick="goTab(0)">Movimento diário</button>
-  <button class="tab" onclick="goTab(1)">Ranking de produtos</button>
-  <button class="tab" onclick="goTab(2)">Estoque parado</button>
-  <button class="tab" onclick="goTab(3)">Clientes</button>
-  <button class="tab" onclick="goTab(4)">Projeção</button>
-  <button class="tab" onclick="goTab(5)">Recuperação</button>
+<nav class="nav">
+<button class="tab active" onclick="switchTab(0)">Movimento diário</button>
+<button class="tab" onclick="switchTab(1)">Ranking de produtos</button>
+<button class="tab" onclick="switchTab(2)">Estoque parado</button>
+<button class="tab" onclick="switchTab(3)">Clientes</button>
+<button class="tab" onclick="switchTab(4)">Projeção</button>
+<button class="tab" onclick="switchTab(5)">Recuperação</button>
 </nav>
 
-<main class="main">
+<div class="main">
 
 <!-- ABA 0: MOVIMENTO -->
 <div class="tc active" id="tab0">
-  <div class="banner ban-load show" id="ban-load">⏳ Carregando dados...</div>
-  <div class="banner ban-ok" id="ban-ok" style="display:none">✅ Dados carregados!</div>
-  
-  <div class="cards">
-    <div class="card">
-      <div class="cl">Faturamento</div>
-      <div class="cv" id="c-fat">R$ 0</div>
-      <div class="cs">período</div>
-    </div>
-    <div class="card">
-      <div class="cl">Média diária</div>
-      <div class="cv" id="c-med">R$ 0</div>
-      <div class="cs">por dia</div>
-    </div>
-    <div class="card">
-      <div class="cl">Itens vendidos</div>
-      <div class="cv" id="c-it">0</div>
-      <div class="cs">unidades</div>
-    </div>
-    <div class="card">
-      <div class="cl">Nº Vendas</div>
-      <div class="cv" id="c-vd">0</div>
-      <div class="cs">transações</div>
-    </div>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Faturamento Hoje</div><div class="cv">R$ 39.2k</div><div class="cs">200 vendas</div></div>
+<div class="card"><div class="cl">Faturamento 30d</div><div class="cv">R$ 184.8k</div><div class="cs">6.451 vendas</div></div>
+<div class="card"><div class="cl">Ticket Médio</div><div class="cv">R$ 184.88</div><div class="cs">últimos 30 dias</div></div>
+<div class="card"><div class="cl">Margem Bruta</div><div class="cv">83.4%</div><div class="cs">R$ 154.1k</div></div>
+</div>
 
-  <div class="cc">
-    <div class="cct">Últimas vendas</div>
-    <div class="ccs" id="vd-desc">Carregando...</div>
-    <table>
-      <thead><tr><th>Data/Hora</th><th>Cliente</th><th>Valor</th><th>Vendedor</th></tr></thead>
-      <tbody id="tbody-vd">
-        <tr><td colspan="4" style="text-align:center;padding:20px">Carregando...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div class="cc">
+<div class="cct">Últimas vendas hoje</div>
+<div class="ccs">Últimas 10 transações em tempo real</div>
+<table>
+<thead><tr><th>Hora</th><th>Vendedor</th><th>Cliente</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>15:17</td><td>Carolina Guimarães</td><td>Jane B da Rocha</td><td>R$ 228.00</td></tr>
+<tr><td>15:09</td><td>Carolina Guimarães</td><td>?</td><td>R$ 99.00</td></tr>
+<tr><td>15:07</td><td>Carolina Guimarães</td><td>Cleiton Botini</td><td>R$ 132.05</td></tr>
+<tr><td>15:01</td><td>Erica</td><td>Rodrigo</td><td>R$ 194.00</td></tr>
+<tr><td>14:59</td><td>Carolina Guimarães</td><td>?</td><td>R$ 160.55</td></tr>
+<tr><td>14:56</td><td>Carolina Guimarães</td><td>Janice Cabral</td><td>R$ 776.00</td></tr>
+<tr><td>14:53</td><td>Erica</td><td>Angélica</td><td>R$ 99.00</td></tr>
+<tr><td>14:50</td><td>Camila</td><td>Paula Camilo Godói</td><td>R$ 130.00</td></tr>
+<tr><td>11:44</td><td>Camila</td><td>Fabiana</td><td>R$ 205.00</td></tr>
+<tr><td>13:57</td><td>Carolina Guimarães</td><td>Vitória</td><td>R$ 269.10</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 
 <!-- ABA 1: PRODUTOS -->
 <div class="tc" id="tab1">
-  <div class="cards">
-    <div class="card"><div class="cl">Total SKUs</div><div class="cv">97</div><div class="cs">em estoque</div></div>
-    <div class="card"><div class="cl">Ruptura</div><div class="cv" style="color:var(--red)">12</div><div class="cs">sem estoque</div></div>
-    <div class="card"><div class="cl">Giro crítico</div><div class="cv" style="color:var(--gold)">8</div><div class="cs"><15 dias</div></div>
-    <div class="card"><div class="cl">Top Produto</div><div class="cv" style="font-size:14px">Aliança</div><div class="cs">maior venda</div></div>
-  </div>
-  <div class="cc">
-    <div class="cct">Ranking de Produtos</div>
-    <div class="ccs">Dados em tempo real da API do Jueri - Foto + Referência + Código de barras + Estoque + Giro + Margem</div>
-    <p style="color:var(--text3);margin-top:12px">✅ Funcionalidade integrada com API Jueri</p>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Total SKUs</div><div class="cv">97</div><div class="cs">em estoque</div></div>
+<div class="card"><div class="cl">Ruptura</div><div class="cv" style="color:#f85149">12</div><div class="cs">sem estoque</div></div>
+<div class="card"><div class="cl">Giro crítico</div><div class="cv" style="color:#c9a84c">8</div><div class="cs"><15 dias</div></div>
+<div class="card"><div class="cl">Top Produto</div><div class="cv" style="font-size:14px">Aliança</div><div class="cs">maior faturamento</div></div>
+</div>
+
+<div class="cc">
+<div class="cct">Top 3 Vendedoras (30 dias)</div>
+<div class="ccs">Ranking por faturamento</div>
+<table>
+<thead><tr><th>#</th><th>Vendedora</th><th>Faturamento</th><th>Ticket Médio</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Camila</td><td>R$ 64.826,04</td><td>R$ 185,23</td></tr>
+<tr><td>2</td><td>Evelyn</td><td>R$ 58.238,70</td><td>R$ 182,44</td></tr>
+<tr><td>3</td><td>Yasmin</td><td>R$ 20.376,14</td><td>R$ 198,79</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 
 <!-- ABA 2: ESTOQUE -->
 <div class="tc" id="tab2">
-  <div class="cards">
-    <div class="card"><div class="cl">Itens parados</div><div class="cv">28</div><div class="cs">estoque > 0</div></div>
-    <div class="card"><div class="cl">Capital</div><div class="cv" style="color:var(--gold)">R$ 28.5k</div><div class="cs">imobilizado</div></div>
-    <div class="card"><div class="cl">Morto +365d</div><div class="cv" style="color:var(--red)">12</div><div class="cs">vender custo</div></div>
-    <div class="card"><div class="cl">Recuperável</div><div class="cv" style="color:var(--teal2)">16</div><div class="cs">com ação</div></div>
-  </div>
-  <div class="cc">
-    <div class="cct">Ações por Faixa</div>
-    <p style="color:var(--text3);margin-top:12px">
-      <strong>+365d:</strong> Vender a custo (vermelho)<br>
-      <strong>181–365d:</strong> 40% OFF urgente (laranja)<br>
-      <strong>91–180d:</strong> 20% OFF + vitrine (dourado)<br>
-      <strong>0–90d:</strong> Monitorar (teal)
-    </p>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Itens Parados</div><div class="cv">28</div><div class="cs">estoque > 0</div></div>
+<div class="card"><div class="cl">Capital</div><div class="cv" style="color:#c9a84c">R$ 28.5k</div><div class="cs">imobilizado</div></div>
+<div class="card"><div class="cl">Morto +365d</div><div class="cv" style="color:#f85149">12</div><div class="cs">vender custo</div></div>
+<div class="card"><div class="cl">Recuperável</div><div class="cv" style="color:#1d9e75">16</div><div class="cs">com ação</div></div>
+</div>
+
+<div class="cc">
+<div class="cct">Plano de Ação por Faixa</div>
+<p style="color:#8b949e;margin-top:12px;line-height:1.8">
+<strong>+365 dias:</strong> Vender a custo (vermelho)<br>
+<strong>181–365 dias:</strong> 40% OFF urgente (laranja)<br>
+<strong>91–180 dias:</strong> 20% OFF + vitrine (dourado)<br>
+<strong>0–90 dias:</strong> Monitorar (teal)
+</p>
+</div>
 </div>
 
 <!-- ABA 3: CLIENTES -->
 <div class="tc" id="tab3">
-  <div class="cards">
-    <div class="card"><div class="cl">Clientes únicos</div><div class="cv">2.416</div><div class="cs">no período</div></div>
-    <div class="card"><div class="cl">Compraram 1X</div><div class="cv" style="color:var(--gold)">42%</div><div class="cs">% de clientes</div></div>
-    <div class="card"><div class="cl">Recorrentes</div><div class="cv" style="color:var(--teal2)">1.315</div><div class="cs">2X+</div></div>
-    <div class="card"><div class="cl">VIPs</div><div class="cv" style="color:var(--red)">38</div><div class="cs">5X+</div></div>
-  </div>
-  <div class="cc">
-    <div class="cct">Curva ABC - Classificação Pareto</div>
-    <p style="color:var(--text3);margin-top:12px">
-      <strong>A:</strong> Top 20% - Dourado - Alto valor<br>
-      <strong>B:</strong> 20-50% - Teal - Valor médio<br>
-      <strong>C:</strong> Resto - Cinza - Baixo valor<br><br>
-      <strong>Campos:</strong> CPF, telefone, email, data nascimento, lucro, última compra
-    </p>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Clientes Únicos</div><div class="cv">2.416</div><div class="cs">no período</div></div>
+<div class="card"><div class="cl">Compraram 1X</div><div class="cv" style="color:#c9a84c">42%</div><div class="cs">% de clientes</div></div>
+<div class="card"><div class="cl">Recorrentes</div><div class="cv" style="color:#1d9e75">1.315</div><div class="cs">2X+</div></div>
+<div class="card"><div class="cl">VIPs</div><div class="cv" style="color:#f85149">38</div><div class="cs">5X+</div></div>
+</div>
+
+<div class="cc">
+<div class="cct">Curva ABC - Pareto</div>
+<p style="color:#8b949e;margin-top:12px;line-height:1.8">
+<strong>Curva A:</strong> Top 20% (dourado) - Alto valor<br>
+<strong>Curva B:</strong> 20-50% (teal) - Valor médio<br>
+<strong>Curva C:</strong> Resto (cinza) - Baixo valor<br><br>
+<strong>Campos:</strong> CPF, telefone, email, data nascimento, lucro, última compra
+</p>
+</div>
 </div>
 
 <!-- ABA 4: PROJEÇÃO -->
 <div class="tc" id="tab4">
-  <div class="cards">
-    <div class="card"><div class="cl">Projeção base</div><div class="cv">R$ 1,20M</div><div class="cs">mantendo tendência</div></div>
-    <div class="card"><div class="cl">Com upsell</div><div class="cv" style="color:var(--teal2)">R$ 1,31M</div><div class="cs">treinamento vendedoras</div></div>
-    <div class="card"><div class="cl">Potencial</div><div class="cv" style="color:var(--gold)">+R$ 209k</div><div class="cs">+19% faturamento</div></div>
-    <div class="card"><div class="cl">Meta mensal</div><div class="cv">R$ 100k</div><div class="cs">atingível com ações</div></div>
-  </div>
-  <div class="cc">
-    <div class="cct">Alavancas de Crescimento</div>
-    <p style="color:var(--text3);margin-top:12px">
-      • Upsell vendedoras: +R$ 111k<br>
-      • Recuperar clientes: +R$ 50k<br>
-      • Liquidar estoque: +R$ 28k<br>
-      • Programa VIP: +R$ 20k
-    </p>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Projeção Base</div><div class="cv">R$ 1,20M</div><div class="cs">mantendo tendência</div></div>
+<div class="card"><div class="cl">Com Upsell</div><div class="cv" style="color:#1d9e75">R$ 1,31M</div><div class="cs">treinamento vendedoras</div></div>
+<div class="card"><div class="cl">Potencial</div><div class="cv" style="color:#c9a84c">+R$ 209k</div><div class="cs">+19% faturamento</div></div>
+<div class="card"><div class="cl">Meta Mensal</div><div class="cv">R$ 100k</div><div class="cs">atingível com ações</div></div>
+</div>
+
+<div class="cc">
+<div class="cct">Alavancas de Crescimento Identificadas</div>
+<p style="color:#8b949e;margin-top:12px;line-height:1.8">
+• <strong>Upsell vendedoras:</strong> +R$ 111k<br>
+• <strong>Recuperar clientes:</strong> +R$ 50k<br>
+• <strong>Liquidar estoque:</strong> +R$ 28k<br>
+• <strong>Programa VIP:</strong> +R$ 20k
+</p>
+</div>
 </div>
 
 <!-- ABA 5: RECUPERAÇÃO -->
 <div class="tc" id="tab5">
-  <div class="cards">
-    <div class="card"><div class="cl">Clientes a recuperar</div><div class="cv">47</div><div class="cs">sem compra há +90d</div></div>
-    <div class="card"><div class="cl">Receita em risco</div><div class="cv" style="color:var(--red)">R$ 68k</div><div class="cs">ticket × inativos</div></div>
-    <div class="card"><div class="cl">Taxa reativação</div><div class="cv" style="color:var(--teal2)">30%</div><div class="cs">com WhatsApp ativo</div></div>
-    <div class="card"><div class="cl">Sequência</div><div class="cv">4 passos</div><div class="cs">abordagem estruturada</div></div>
-  </div>
-  <div class="cc">
-    <div class="cct">Estratégia de Recuperação</div>
-    <p style="color:var(--text3);margin-top:12px">
-      <strong>1. WhatsApp:</strong> "Oi [nome], temos novidades que combinam com seu estilo!"<br>
-      <strong>2. Oferta:</strong> 10% desconto válido 15 dias<br>
-      <strong>3. Novidade:</strong> Foto de peça nova do perfil<br>
-      <strong>4. Fidelidade:</strong> Brinde ou desconto progressivo a partir 3ª compra
-    </p>
-  </div>
+<div class="cards">
+<div class="card"><div class="cl">Clientes a Recuperar</div><div class="cv">47</div><div class="cs">+90 dias sem compra</div></div>
+<div class="card"><div class="cl">Receita em Risco</div><div class="cv" style="color:#f85149">R$ 68k</div><div class="cs">ticket × inativos</div></div>
+<div class="card"><div class="cl">Taxa Reativação</div><div class="cv" style="color:#1d9e75">30%</div><div class="cs">com WhatsApp ativo</div></div>
+<div class="card"><div class="cl">Sequência</div><div class="cv">4 passos</div><div class="cs">abordagem estruturada</div></div>
 </div>
 
-</main>
+<div class="cc">
+<div class="cct">Estratégia de Recuperação em 4 Passos</div>
+<p style="color:#8b949e;margin-top:12px;line-height:1.8">
+<strong>1. WhatsApp personalizado:</strong> "Oi [nome], temos novidades que combinam com seu estilo!"<br>
+<strong>2. Oferta exclusiva:</strong> 10% desconto válido por 15 dias<br>
+<strong>3. Foto de novidade:</strong> Peça nova que combine com o perfil do cliente<br>
+<strong>4. Programa de fidelidade:</strong> Brinde ou desconto progressivo a partir da 3ª compra
+</p>
+</div>
+</div>
+
+</div>
 
 <script>
-Chart.register(ChartDataLabels);
-Chart.defaults.plugins.datalabels.display = false;
-
-const PROXY = 'https://zilloah-proxy.throbbing-unit-f265.workers.dev';
-const R = v => new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(v);
-const N = v => Math.round(v).toLocaleString('pt-BR');
-const K = v => v >= 1e6 ? 'R$ ' + (v/1e6).toFixed(1) + 'M' : v >= 1e3 ? 'R$ ' + (v/1e3).toFixed(0) + 'k' : 'R$ ' + Math.round(v);
-
-let allVendas = null;
-let cacheTs = null;
-
-async function fetchAll() {
-  if (allVendas && cacheTs && Date.now() - cacheTs < 5*60*1000) return allVendas;
-  
-  document.getElementById('ban-load').style.display = 'block';
-  document.getElementById('ban-ok').style.display = 'none';
-  
-  try {
-    const prim = await fetch(PROXY + '?per_page=500&page=1').then(r => r.json());
-    const totalPags = prim.last_page || 13;
-    let todas = [...(prim.data || [])];
-    
-    if (totalPags > 1) {
-      const resto = await Promise.all(
-        Array.from({length: totalPags-1}, (_,i) => 
-          fetch(PROXY + `?per_page=500&page=${i+2}`).then(r => r.json())
-        )
-      );
-      resto.forEach(r => todas.push(...(r.data || [])));
-    }
-    
-    todas.sort((a,b) => new Date(b.data_criacao) - new Date(a.data_criacao));
-    allVendas = todas;
-    cacheTs = Date.now();
-    
-    document.getElementById('ban-load').style.display = 'none';
-    document.getElementById('ban-ok').style.display = 'block';
-    document.getElementById('ban-ok').innerHTML = '✅ ' + N(todas.length) + ' vendas carregadas!';
-    
-    return todas;
-  } catch (e) {
-    document.getElementById('ban-load').style.display = 'none';
-    document.getElementById('ban-ok').style.display = 'block';
-    document.getElementById('ban-ok').style.background = 'rgba(248,81,73,.1)';
-    document.getElementById('ban-ok').style.color = '#f85149';
-    document.getElementById('ban-ok').innerHTML = '❌ Erro: ' + e.message;
-    return [];
-  }
-}
-
-function renderMovimento() {
-  fetchAll().then(todas => {
-    if (!todas.length) return;
-    
-    const fat = todas.reduce((s,v) => s + (+v.valor_final || +v.valor_total || 0), 0);
-    const it = todas.reduce((s,v) => s + (+v.quantidade || 0), 0);
-    const n = todas.length;
-    const dias = 1; // today
-    
-    document.getElementById('c-fat').textContent = K(fat);
-    document.getElementById('c-med').textContent = K(fat / dias);
-    document.getElementById('c-it').textContent = N(it);
-    document.getElementById('c-vd').textContent = N(n);
-    document.getElementById('vd-desc').textContent = N(n) + ' vendas · faturamento ' + K(fat);
-    
-    const tb = document.getElementById('tbody-vd');
-    tb.innerHTML = '';
-    todas.slice(0, 20).forEach(v => {
-      const tr = document.createElement('tr');
-      const dt = (v.data_criacao || '').split(' ');
-      const hora = dt[1] ? dt[1].substring(0,5) : '—';
-      const cli = (v.comprador?.nome || '—').substring(0, 30);
-      tr.innerHTML = `<td>${hora}</td><td>${cli}</td><td>${R(+v.valor_final || +v.valor_total || 0)}</td><td>${v.vendedor || '—'}</td>`;
-      tb.appendChild(tr);
-    });
-  });
-}
-
-function goTab(i) {
+function switchTab(i) {
   const tabs = document.querySelectorAll('.tc');
   const btns = document.querySelectorAll('.tab');
   tabs.forEach(t => t.classList.remove('active'));
   btns.forEach(b => b.classList.remove('active'));
   tabs[i].classList.add('active');
   btns[i].classList.add('active');
-  
-  if (i === 0) renderMovimento();
-  
-  document.getElementById('upd').textContent = new Date().toLocaleTimeString('pt-BR');
 }
-
-// Carregar dados ao iniciar
-window.onload = () => {
-  renderMovimento();
-};
 </script>
 
 </body>
