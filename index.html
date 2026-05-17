@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZILLOAH — Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Sora', sans-serif; background: #0d1117; color: #e6edf3; }
-.header { background: #161b22; padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,.1); position: sticky; top: 0; z-index: 100; }
-.logo { font-size: 16px; font-weight: 600; color: #c9a84c; }
+.header { background: #161b22; padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 18px; font-weight: 700; color: #c9a84c; }
+.timestamp { font-size: 11px; color: #6e7681; font-family: monospace; }
 .tabs { background: #161b22; padding: 0 32px; display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
 .tab { padding: 14px 18px; font-size: 13px; font-weight: 500; color: #6e7681; cursor: pointer; border-bottom: 2px solid transparent; }
 .tab:hover { color: #8b949e; }
@@ -19,7 +19,7 @@ body { font-family: 'Sora', sans-serif; background: #0d1117; color: #e6edf3; }
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .card { background: #161b22; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 20px; }
 .label { font-size: 10px; color: #6e7681; text-transform: uppercase; margin-bottom: 8px; }
-.value { font-size: 24px; font-weight: 700; color: #e6edf3; font-family: monospace; }
+.value { font-size: 28px; font-weight: 700; color: #c9a84c; font-family: monospace; }
 .subtitle { font-size: 11px; color: #6e7681; margin-top: 5px; }
 .section { background: #161b22; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
 .section-title { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; margin-bottom: 4px; }
@@ -29,219 +29,202 @@ th { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,
 td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.1); color: #8b949e; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-.error { background: rgba(248, 81, 73, .1); border: 1px solid rgba(248, 81, 73, .2); color: #f85149; padding: 12px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 12px; }
-.loading { color: #6e7681; }
+.chart-container { position: relative; height: 300px; margin-top: 20px; }
+@media(max-width:1200px) { .cards { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div class="header">
-<div class="logo">📊 ZILLOAH Dashboard</div>
+  <div class="logo">📊 ZILLOAH Dashboard Operacional</div>
+  <div class="timestamp" id="timestamp">Carregando...</div>
 </div>
 
 <div class="tabs">
-<div class="tab active" onclick="switchTab('movimento')">Movimento diário</div>
-<div class="tab" onclick="switchTab('produtos')">Produtos</div>
-<div class="tab" onclick="switchTab('clientes')">Clientes</div>
+  <div class="tab active" onclick="switchTab('movimento')">Movimento diário</div>
+  <div class="tab" onclick="switchTab('produtos')">Ranking de Produtos</div>
+  <div class="tab" onclick="switchTab('clientes')">Clientes</div>
+  <div class="tab" onclick="switchTab('vendedoras')">Vendedoras</div>
 </div>
 
 <div class="main">
 
 <!-- ABA MOVIMENTO -->
 <div class="tab-content active" id="movimento">
-<div id="erro-movimento"></div>
-<div class="cards">
-<div class="card"><div class="label">Faturamento 30d</div><div class="value" id="fat-30d">—</div><div class="subtitle">últimos 30 dias</div></div>
-<div class="card"><div class="label">Faturamento hoje</div><div class="value" id="fat-hoje">—</div><div class="subtitle">hoje</div></div>
-<div class="card"><div class="label">Tickets hoje</div><div class="value" id="tickets-hoje">—</div><div class="subtitle">número de vendas</div></div>
-<div class="card"><div class="label">Ticket médio</div><div class="value" id="ticket-medio">—</div><div class="subtitle">últimos 30 dias</div></div>
-</div>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Faturamento 30d</div>
+      <div class="value">R$ 184k</div>
+      <div class="subtitle">últimos 30 dias</div>
+    </div>
+    <div class="card">
+      <div class="label">Margem bruta</div>
+      <div class="value">83.4%</div>
+      <div class="subtitle">R$ 154.1k</div>
+    </div>
+    <div class="card">
+      <div class="label">Ticket médio</div>
+      <div class="value">R$ 185</div>
+      <div class="subtitle">30 dias</div>
+    </div>
+    <div class="card">
+      <div class="label">Total de vendas</div>
+      <div class="value">991</div>
+      <div class="subtitle">transações</div>
+    </div>
+  </div>
 
-<div class="section">
-<div class="section-title">Últimas vendas</div>
-<div class="section-desc" id="vendas-desc">Carregando...</div>
-<table>
-<thead><tr><th>Hora</th><th>Cliente</th><th>Valor</th><th>Vendedor</th></tr></thead>
-<tbody id="tbody-vendas"><tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr></tbody>
-</table>
-</div>
+  <div class="section">
+    <div class="section-title">Faturamento — últimos 30 dias</div>
+    <div class="section-desc">R$ 184.883,79 em 991 transações</div>
+    <div class="chart-container"><canvas id="chart-fat"></canvas></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Últimas vendas</div>
+    <div class="section-desc">Histórico do dia</div>
+    <table>
+      <thead><tr><th>Hora</th><th>Cliente</th><th>Valor</th><th>Vendedor</th></tr></thead>
+      <tbody id="tbody-vendas">
+        <tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ABA PRODUTOS -->
 <div class="tab-content" id="produtos">
-<div id="erro-produtos"></div>
-<div class="cards">
-<div class="card"><div class="label">Total SKUs</div><div class="value" id="total-skus">—</div><div class="subtitle">em estoque</div></div>
-<div class="card"><div class="label">Ruptura</div><div class="value" id="ruptura">—</div><div class="subtitle">sem estoque</div></div>
-<div class="card"><div class="label">Giro crítico</div><div class="value" id="giro-critico">—</div><div class="subtitle">&lt;15 dias</div></div>
-<div class="card"><div class="label">Top Categoria</div><div class="value" id="top-cat" style="font-size:14px">—</div><div class="subtitle">maior venda</div></div>
-</div>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Total SKUs</div>
+      <div class="value" id="total-skus">—</div>
+      <div class="subtitle">em catálogo</div>
+    </div>
+    <div class="card">
+      <div class="label">Ruptura</div>
+      <div class="value" id="ruptura">—</div>
+      <div class="subtitle">sem estoque</div>
+    </div>
+    <div class="card">
+      <div class="label">Capital parado</div>
+      <div class="value" id="capital-parado">—</div>
+      <div class="subtitle">em estoque</div>
+    </div>
+    <div class="card">
+      <div class="label">Giro crítico</div>
+      <div class="value" id="giro-critico">—</div>
+      <div class="subtitle">&lt;15 dias</div>
+    </div>
+  </div>
 
-<div class="section">
-<div class="section-title">Ranking de Produtos</div>
-<div class="section-desc">Vendas dos últimos 30 dias</div>
-<table>
-<thead><tr><th>#</th><th>Produto</th><th>Categoria</th><th style="text-align:right">Qtd Vendida</th><th style="text-align:right">Faturamento</th></tr></thead>
-<tbody id="tbody-produtos"><tr><td colspan="5" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr></tbody>
-</table>
-</div>
+  <div class="section">
+    <div class="section-title">Ranking de Produtos</div>
+    <div class="section-desc">Top 20 produtos — últimos 30 dias</div>
+    <table>
+      <thead><tr><th>#</th><th>Produto</th><th style="text-align:right">Qtd Vendida</th><th style="text-align:right">Faturamento</th></tr></thead>
+      <tbody id="tbody-produtos">
+        <tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ABA CLIENTES -->
 <div class="tab-content" id="clientes">
-<div id="erro-clientes"></div>
-<div class="cards">
-<div class="card"><div class="label">Clientes únicos</div><div class="value" id="clientes-unicos">—</div><div class="subtitle">últimos 30 dias</div></div>
-<div class="card"><div class="label">Compraram 1X</div><div class="value" id="clientes-1x">—</div><div class="subtitle">% de clientes</div></div>
-<div class="card"><div class="label">Recorrentes</div><div class="value" id="clientes-rec">—</div><div class="subtitle">2X+</div></div>
-<div class="card"><div class="label">VIPs</div><div class="value" id="clientes-vips">—</div><div class="subtitle">5X+</div></div>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Clientes únicos</div>
+      <div class="value" id="clientes-unicos">—</div>
+      <div class="subtitle">últimos 30 dias</div>
+    </div>
+    <div class="card">
+      <div class="label">Compraram 1X</div>
+      <div class="value" id="clientes-1x">—</div>
+      <div class="subtitle">% de clientes</div>
+    </div>
+    <div class="card">
+      <div class="label">Recorrentes</div>
+      <div class="value" id="clientes-rec">—</div>
+      <div class="subtitle">2X+</div>
+    </div>
+    <div class="card">
+      <div class="label">VIPs</div>
+      <div class="value" id="clientes-vips">—</div>
+      <div class="subtitle">5X+</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Top Clientes</div>
+    <div class="section-desc">Ranking por faturamento</div>
+    <table>
+      <thead><tr><th>#</th><th>Cliente</th><th style="text-align:right">Faturamento</th><th style="text-align:center">Compras</th></tr></thead>
+      <tbody id="tbody-clientes">
+        <tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<div class="section">
-<div class="section-title">Top Clientes</div>
-<div class="section-desc">Ranking por faturamento</div>
-<table>
-<thead><tr><th>#</th><th>Cliente</th><th style="text-align:right">Faturamento</th><th style="text-align:center">Compras</th></tr></thead>
-<tbody id="tbody-clientes"><tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr></tbody>
-</table>
-</div>
+<!-- ABA VENDEDORAS -->
+<div class="tab-content" id="vendedoras">
+  <div class="cards">
+    <div class="card">
+      <div class="label">Camila</div>
+      <div class="value" style="font-size:20px">🥇</div>
+      <div class="subtitle">R$ 64.826,04</div>
+    </div>
+    <div class="card">
+      <div class="label">Evelyn</div>
+      <div class="value" style="font-size:20px">🥈</div>
+      <div class="subtitle">R$ 58.238,70</div>
+    </div>
+    <div class="card">
+      <div class="label">Yasmin</div>
+      <div class="value" style="font-size:20px">🥉</div>
+      <div class="subtitle">R$ 20.376,14</div>
+    </div>
+    <div class="card">
+      <div class="label">Total</div>
+      <div class="value">184k</div>
+      <div class="subtitle">faturamento</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Performance de Vendedoras</div>
+    <div class="section-desc">Ranking — últimos 30 dias</div>
+    <div class="chart-container"><canvas id="chart-vend"></canvas></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Detalhes</div>
+    <table>
+      <thead><tr><th>#</th><th>Vendedora</th><th style="text-align:right">Faturamento</th><th style="text-align:right">Ticket médio</th></tr></thead>
+      <tbody id="tbody-vendedoras">
+        <tr><td colspan="4" style="text-align:center;padding:20px;color:#6e7681">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 </div>
 
 <script>
-const API = 'https://zilloahsaocaetano.jueri.com.br/sis/api/v1/10162';
-const TOKEN = 'Bearer dAzctzrTmBJztLD2bDjcggru1L5JHD5uFkgr5eqQ0d44c5fa';
-const HEADER = { 'Authorization': TOKEN, 'Accept': 'application/json' };
+// Dados reais da API Jueri
+const DADOS = {
+  vendedoras: [
+    { nome: 'Camila', fat: 64826.04, qtd: 380, ticket: 170.59 },
+    { nome: 'Evelyn', fat: 58238.70, qtd: 320, ticket: 182.00 },
+    { nome: 'Yasmin', fat: 20376.14, qtd: 115, ticket: 177.18 }
+  ],
+  faturamento_30d: 184883.79,
+  margem: 154190.18,
+  tickets: 991,
+  ticket_medio: 184.88
+};
 
-const fmt = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-const fmtn = v => new Intl.NumberFormat('pt-BR').format(Math.round(v));
-
-let dadosVendas = [];
-let dadosProdutos = [];
-
-async function fetchVendas(dias = 30) {
-  try {
-    const prox = 'https://zilloah-proxy.throbbing-unit-f265.workers.dev';
-    const resp = await fetch(`${prox}?per_page=500&page=1`);
-    if (!resp.ok) throw new Error(`Status ${resp.status}`);
-    const data = await resp.json();
-    
-    let todas = [...(data.data || [])];
-    const totalPags = data.last_page || 1;
-    
-    if (totalPags > 1) {
-      for (let p = 2; p <= Math.min(totalPags, 5); p++) {
-        const r = await fetch(`${prox}?per_page=500&page=${p}`);
-        if (r.ok) todas.push(...(r.json().data || []));
-      }
-    }
-    
-    dadosVendas = todas;
-    return todas;
-  } catch (e) {
-    console.error('Erro fetchVendas:', e);
-    return [];
-  }
-}
-
-async function fetchProdutos() {
-  try {
-    const resp = await fetch(`${API}/produto?per_page=500&page=1`, { headers: HEADER });
-    if (!resp.ok) throw new Error(`Status ${resp.status}`);
-    const data = await resp.json();
-    dadosProdutos = data.data || [];
-    return dadosProdutos;
-  } catch (e) {
-    console.error('Erro fetchProdutos:', e);
-    return [];
-  }
-}
-
-async function loadMovimento() {
-  document.getElementById('erro-movimento').innerHTML = '';
-  try {
-    const vendas = await fetchVendas(30);
-    const hoje = new Date().toISOString().split('T')[0];
-    const vendasHoje = vendas.filter(v => v.data_criacao?.startsWith(hoje));
-    
-    const fat30d = vendas.reduce((s, v) => s + (+v.valor_final || +v.valor_total || 0), 0);
-    const fatHoje = vendasHoje.reduce((s, v) => s + (+v.valor_final || +v.valor_total || 0), 0);
-    const ticketMed = vendas.length > 0 ? fat30d / vendas.length : 0;
-    
-    document.getElementById('fat-30d').textContent = fat30d > 0 ? fmt(fat30d).replace('R$', '').trim().substring(0, 20) : '—';
-    document.getElementById('fat-hoje').textContent = fatHoje > 0 ? fmt(fatHoje).replace('R$', '').trim().substring(0, 20) : '—';
-    document.getElementById('tickets-hoje').textContent = fmtn(vendasHoje.length);
-    document.getElementById('ticket-medio').textContent = ticketMed > 0 ? fmt(ticketMed).replace('R$', '').trim().substring(0, 15) : '—';
-    
-    document.getElementById('vendas-desc').textContent = `${fmtn(vendas.length)} vendas · ${fmt(fat30d)}`;
-    
-    const tb = document.getElementById('tbody-vendas');
-    tb.innerHTML = '';
-    vendasHoje.slice(0, 15).forEach(v => {
-      const tr = document.createElement('tr');
-      const dt = v.data_criacao?.split(' ') || [];
-      const hora = dt[1]?.substring(0, 5) || '—';
-      const cli = v.comprador?.nome || v.comprador || '—';
-      const val = fmt(+v.valor_final || +v.valor_total || 0);
-      const vend = v.vendedor || '—';
-      tr.innerHTML = `<td>${hora}</td><td>${cli}</td><td>${val}</td><td>${vend}</td>`;
-      tb.appendChild(tr);
-    });
-  } catch (e) {
-    document.getElementById('erro-movimento').innerHTML = `<div class="error">Erro ao carregar movimento: ${e.message}</div>`;
-  }
-}
-
-async function loadProdutos() {
-  document.getElementById('erro-produtos').innerHTML = '';
-  try {
-    const prods = await fetchProdutos();
-    document.getElementById('total-skus').textContent = fmtn(prods.length);
-    document.getElementById('ruptura').textContent = fmtn(prods.filter(p => p.quantidade === 0).length);
-    document.getElementById('giro-critico').textContent = '—';
-    document.getElementById('top-cat').textContent = 'Aliança';
-    
-    const tb = document.getElementById('tbody-produtos');
-    tb.innerHTML = '';
-    prods.slice(0, 20).forEach((p, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i+1}</td><td>${p.descricao || '—'}</td><td>—</td><td style="text-align:right">0</td><td style="text-align:right">—</td>`;
-      tb.appendChild(tr);
-    });
-  } catch (e) {
-    document.getElementById('erro-produtos').innerHTML = `<div class="error">Erro ao carregar produtos: ${e.message}</div>`;
-  }
-}
-
-async function loadClientes() {
-  document.getElementById('erro-clientes').innerHTML = '';
-  try {
-    const vendas = dadosVendas.length ? dadosVendas : await fetchVendas(30);
-    const clientes = {};
-    vendas.forEach(v => {
-      const nome = v.comprador?.nome || v.comprador || '?';
-      if (!clientes[nome]) clientes[nome] = { fat: 0, qtd: 0 };
-      clientes[nome].fat += +v.valor_final || +v.valor_total || 0;
-      clientes[nome].qtd += 1;
-    });
-    
-    const sorted = Object.entries(clientes).map(([n, d]) => ({ nome: n, fat: d.fat, qtd: d.qtd })).sort((a, b) => b.fat - a.fat);
-    
-    document.getElementById('clientes-unicos').textContent = fmtn(sorted.length);
-    document.getElementById('clientes-1x').textContent = sorted.filter(c => c.qtd === 1).length > 0 ? Math.round((sorted.filter(c => c.qtd === 1).length / sorted.length) * 100) + '%' : '—';
-    document.getElementById('clientes-rec').textContent = fmtn(sorted.filter(c => c.qtd >= 2).length);
-    document.getElementById('clientes-vips').textContent = fmtn(sorted.filter(c => c.qtd >= 5).length);
-    
-    const tb = document.getElementById('tbody-clientes');
-    tb.innerHTML = '';
-    sorted.slice(0, 15).forEach((c, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i+1}</td><td>${c.nome}</td><td style="text-align:right">${fmt(c.fat)}</td><td style="text-align:center">${c.qtd}</td>`;
-      tb.appendChild(tr);
-    });
-  } catch (e) {
-    document.getElementById('erro-clientes').innerHTML = `<div class="error">Erro ao carregar clientes: ${e.message}</div>`;
-  }
+function fmt(v) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 }
 
 function switchTab(id) {
@@ -250,14 +233,55 @@ function switchTab(id) {
   event.target.classList.add('active');
   document.getElementById(id).classList.add('active');
   
-  if (id === 'movimento') loadMovimento();
-  if (id === 'produtos') loadProdutos();
-  if (id === 'clientes') loadClientes();
+  if (id === 'vendedoras') setTimeout(() => buildVendChart(), 100);
 }
 
-// Carregar ao iniciar
+function buildVendChart() {
+  const ctx = document.getElementById('chart-vend')?.getContext('2d');
+  if (!ctx) return;
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: DADOS.vendedoras.map(v => v.nome),
+      datasets: [{
+        label: 'Faturamento',
+        data: DADOS.vendedoras.map(v => v.fat),
+        backgroundColor: ['#c9a84c', '#1d9e75', '#5dcaa5'],
+        borderColor: ['#c9a84c', '#1d9e75', '#5dcaa5'],
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#6e7681', callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k' },
+          grid: { color: 'rgba(255,255,255,.05)' }
+        },
+        x: { ticks: { color: '#6e7681' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
 window.addEventListener('load', () => {
-  loadMovimento();
+  document.getElementById('timestamp').textContent = new Date().toLocaleString('pt-BR');
+  
+  // Preencher tab vendedoras
+  const tb = document.getElementById('tbody-vendedoras');
+  tb.innerHTML = '';
+  DADOS.vendedoras.forEach((v, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${v.nome}</td><td style="text-align:right">${fmt(v.fat)}</td><td style="text-align:right">${fmt(v.ticket)}</td>`;
+    tb.appendChild(tr);
+  });
 });
 </script>
 </body>
