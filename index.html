@@ -1,1 +1,449 @@
-VER_ARQUIVO_LOCAL
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZILLOAH — Dashboard Operacional</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2230;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--gold:#c9a84c;--gold2:#e8c97a;--goldd:rgba(201,168,76,.15);--teal:#1d9e75;--teal2:#5dcaa5;--teald:rgba(29,158,117,.12);--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--red:#f85149;--redd:rgba(248,81,73,.12);--r:12px;--rs:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-n{font-size:13px;font-weight:600}.logo-n span{color:var(--teal2)}
+.logo-t{font-size:8px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase}
+.cli-n{font-size:15px;font-weight:600;color:var(--gold)}.cli-s{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal2);animation:pulse 2s infinite;display:inline-block;margin-right:5px}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-r{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--goldd);border:1px solid rgba(201,168,76,.3);border-radius:var(--rs);color:var(--gold);font-size:12px;font-weight:500;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s}
+.btn-r:hover{background:rgba(201,168,76,.25)}.btn-r svg{width:14px;height:14px}
+.btn-r.loading svg{animation:spin .6s linear infinite}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:4px}
+.tab{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Sora',sans-serif;transition:color .2s}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.main{padding:24px 32px}.tc{display:none}.tc.active{display:block}
+.fbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.fi,.fs{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-size:13px;font-family:'Sora',sans-serif;padding:8px 12px;outline:none;height:36px;transition:border-color .2s}
+.fi{width:150px}.fs{width:170px;cursor:pointer}.fi:focus,.fs:focus{border-color:var(--gold)}.fs option{background:var(--bg3)}
+.btn-f{align-self:flex-end;padding:8px 24px;background:var(--gold);border:none;border-radius:var(--rs);color:#0d1117;font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;height:36px}
+.btn-f:hover{background:var(--gold2)}.btn-f:disabled{opacity:.5;cursor:not-allowed}
+.dvr{height:36px;width:1px;background:var(--border);align-self:flex-end;margin:0 4px}
+.banner{border-radius:var(--rs);padding:10px 14px;font-size:11px;margin-bottom:16px;display:none;align-items:flex-start;gap:8px;line-height:1.6}
+.banner.show{display:flex}
+.ban-ok{background:rgba(29,158,117,.1);border:1px solid rgba(93,202,165,.2);color:var(--teal2)}
+.ban-warn{background:var(--goldd);border:1px solid rgba(201,168,76,.3);color:#b8922a}
+.ban-load{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
+.card:hover::before{opacity:1}
+.cl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.cv{font-size:24px;font-weight:700;color:var(--text);line-height:1.1;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.cs{font-size:11px;color:var(--text3);margin-top:5px}
+.cbdg{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:6px}
+.bu{background:rgba(29,158,117,.15);color:var(--teal2)}.bw{background:rgba(201,168,76,.15);color:var(--gold)}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.cc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px}
+.cct{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.ccs{font-size:11px;color:var(--text3);margin-bottom:14px}
+.vt{width:100%;border-collapse:collapse;font-size:12px}
+.vt th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:0 8px 10px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:1}
+.vt td{padding:8px;border-bottom:1px solid var(--border);color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.vt tr:last-child td{border-bottom:none}.vt tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
+.th{font-family:'JetBrains Mono',monospace;color:var(--text3);font-size:11px}
+.vv{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:500}
+.vc{color:var(--teal2);font-size:11px}
+.sw{overflow-y:auto;max-height:340px;border-radius:var(--rs)}
+.sw::-webkit-scrollbar{width:4px}.sw::-webkit-scrollbar-track{background:var(--bg3)}
+.sw::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}.sw::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+.tag-rt{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(29,158,117,.1);border:1px solid rgba(93,202,165,.2);color:var(--teal2)}
+.eg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.er{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}.er:last-child{border-bottom:none}
+.en{flex:1;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--redd);color:var(--red);font-weight:600;flex-shrink:0}
+.ev{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:12px;font-weight:500;flex-shrink:0;width:80px;text-align:right}
+.cr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}.cr:last-child{border-bottom:none}
+.pr{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}.pr:last-child{border-bottom:none}
+.pb{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}.pbf{height:100%;border-radius:4px;background:var(--gold)}
+.skel{background:linear-gradient(90deg,var(--bg3) 25%,#21293a 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:28px;margin-top:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div style="display:flex;align-items:center;gap:10px;padding-right:20px;border-right:1px solid var(--border)">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="#1d3a4a" stroke-width="1.5"/>
+        <circle cx="16" cy="16" r="14" stroke="#1d9e75" stroke-width="1.5" stroke-dasharray="44 44" stroke-dashoffset="11"/>
+        <circle cx="9" cy="20" r="2.5" fill="#1d9e75"/><circle cx="14" cy="14" r="2.5" fill="#1d9e75"/>
+        <circle cx="20" cy="17" r="2.5" fill="#1d9e75"/><circle cx="25" cy="11" r="2.5" fill="#5dcaa5"/>
+        <line x1="9" y1="20" x2="14" y2="14" stroke="#1d9e75" stroke-width="1.2"/>
+        <line x1="14" y1="14" x2="20" y2="17" stroke="#1d9e75" stroke-width="1.2"/>
+        <line x1="20" y1="17" x2="25" y2="11" stroke="#5dcaa5" stroke-width="1.2"/>
+      </svg>
+      <div><div class="logo-n">Level<span>Inteligencia</span></div><div class="logo-t">Transformamos dados em direção</div></div>
+    </div>
+    <div><div class="cli-n">ZILLOAH</div><div class="cli-s" id="hdr-sub">Dashboard Operacional</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace"><span class="dot"></span><span id="upd">--:--:--</span></div>
+    <button class="btn-r" id="btn-r" onclick="loadAll()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5a5.5 5.5 0 0 1 4 1.7"/><path d="M13.5 2.5v3h-3"/></svg>Atualizar
+    </button>
+  </div>
+</header>
+<nav class="tabs">
+  <button class="tab active" onclick="goTab('movimento')">Movimento diário</button>
+  <button class="tab" onclick="goTab('produtos')">Ranking de produtos</button>
+  <button class="tab" onclick="goTab('estoque')">Estoque parado</button>
+  <button class="tab" onclick="goTab('clientes')">Clientes</button>
+  <button class="tab" onclick="goTab('projecao')">Projeção</button>
+  <button class="tab" onclick="goTab('recuperacao')">Recuperação</button>
+</nav>
+<main class="main">
+<div class="tc active" id="tab-movimento">
+  <div class="fbar">
+    <div class="fg"><div class="fl">De</div><input type="date" class="fi" id="f-from"></div>
+    <div class="fg"><div class="fl">Até</div><input type="date" class="fi" id="f-to"></div>
+    <div class="dvr"></div>
+    <div class="fg"><div class="fl">Vendedora</div>
+      <select class="fs" id="f-vend"><option value="">Todas</option><option>Evelyn</option><option>Vitória</option><option>Luciana</option><option>Camila</option><option>Lara</option><option>Carolina Guimarães</option><option>Alessandra</option><option>Bárbara</option><option>Letícia</option><option>Yasmin</option><option>Ana Claudia</option><option>Kamily</option><option>Lorena</option><option>Fernanda</option><option>Erica</option></select>
+    </div>
+    <div class="fg"><div class="fl">Agrupar</div>
+      <select class="fs" id="f-group"><option value="mes">Por mês</option><option value="dia">Por dia</option></select>
+    </div>
+    <button class="btn-f" id="btn-f" onclick="loadAll()">Filtrar</button>
+  </div>
+  <div class="banner ban-load show" id="ban-load"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;animation:spin .8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg><span id="ban-load-t">Carregando dados da API Jueri...</span></div>
+  <div class="banner ban-ok" id="ban-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="ban-ok-t"></span></div>
+  <div class="banner ban-warn" id="ban-warn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="ban-warn-t"></span></div>
+  <div class="cards">
+    <div class="card"><div class="cl">Faturamento</div><div class="cv" id="c-fat"><div class="skel" style="width:80%"></div></div><div class="cs" id="c-fat-s">carregando...</div><div id="c-fat-b"></div></div>
+    <div class="card"><div class="cl">Média diária</div><div class="cv" id="c-med"><div class="skel" style="width:60%"></div></div><div class="cs" id="c-med-s">por dia</div></div>
+    <div class="card"><div class="cl">Itens vendidos</div><div class="cv" id="c-it"><div class="skel" style="width:50%"></div></div><div class="cs">unidades</div></div>
+    <div class="card"><div class="cl">Nº Vendas</div><div class="cv" id="c-vd"><div class="skel" style="width:55%"></div></div><div class="cs" id="c-vd-s">transações</div></div>
+  </div>
+  <div class="g2">
+    <div class="cc">
+      <div class="cct" id="ch-t">Faturamento no período</div>
+      <div class="ccs" id="ch-s">carregando dados reais...</div>
+      <div style="position:relative;height:260px"><canvas id="ch-main"></canvas></div>
+    </div>
+    <div class="cc">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+        <div class="cct">Vendas do período</div>
+        <span class="tag-rt"><span class="dot" style="width:5px;height:5px"></span>dados reais</span>
+      </div>
+      <div class="ccs" id="vd-per">carregando...</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Faturamento</div><div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--gold)" id="vd-fat">—</div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Registros</div><div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal2)" id="vd-qtd">—</div></div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">Lista de vendas</div>
+        <div style="font-size:10px;color:var(--text3)" id="vd-cnt">—</div>
+      </div>
+      <div class="sw"><table class="vt">
+        <thead><tr><th>Data/Hora</th><th>Cliente</th><th>Valor</th><th>Vendedora</th></tr></thead>
+        <tbody id="tbody-vd"><tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">Carregando...</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="cc"><div class="cct">Média por dia da semana</div><div class="ccs" id="sem-sub">Calculado do período</div><div style="position:relative;height:200px"><canvas id="ch-sem"></canvas></div></div>
+    <div class="cc"><div class="cct">Horário de maior fluxo</div><div class="ccs" id="hor-sub">Calculado do período</div><div style="position:relative;height:200px"><canvas id="ch-hor"></canvas></div></div>
+    <div class="cc"><div class="cct">Faturamento vs Margem</div><div class="ccs">Histórico mensal</div><div style="position:relative;height:200px"><canvas id="ch-marg"></canvas></div></div>
+  </div>
+  <div class="cc" style="margin-bottom:16px">
+    <div class="cct" id="vend-t">Performance de vendedoras</div>
+    <div class="ccs" id="vend-s">Calculado do período</div>
+    <div style="position:relative;height:220px"><canvas id="ch-vend"></canvas></div>
+  </div>
+</div>
+<div class="tc" id="tab-produtos">
+  <div class="cc" style="margin-bottom:16px"><div class="cct">Top produtos por faturamento</div><div class="ccs">Baseado no mix histórico</div><div style="position:relative;height:300px"><canvas id="ch-prod"></canvas></div></div>
+  <div class="g2">
+    <div class="cc"><div class="cct">Categorias mais vendidas</div><div class="ccs">Distribuição estimada</div><div style="position:relative;height:240px"><canvas id="ch-cat"></canvas></div></div>
+    <div class="cc"><div class="cct">Faixas de preço</div><div class="ccs">% das vendas por ticket</div><div style="position:relative;height:240px"><canvas id="ch-preco"></canvas></div></div>
+  </div>
+</div>
+<div class="tc" id="tab-estoque">
+  <div class="eg">
+    <div class="card"><div class="cl">Capital imobilizado</div><div class="cv" style="color:var(--red)">R$ 28.508</div><div class="cs">97 produtos parados</div></div>
+    <div class="card"><div class="cl">Todos parados há mais de</div><div class="cv" style="color:var(--red)">365 dias</div><div class="cs">nenhum na faixa de alerta</div></div>
+    <div class="card"><div class="cl">Mais antigo</div><div class="cv" style="font-size:18px">667 dias</div><div class="cs" style="color:var(--red)">Anel Prata Ferradura</div></div>
+  </div>
+  <div class="g2">
+    <div class="cc"><div class="cct">Maior capital imobilizado</div><div class="ccs">Ação urgente — todos >365 dias</div><div class="sw" style="max-height:420px"><div id="est-list"></div></div></div>
+    <div class="cc">
+      <div class="cct">Capital por tempo parado</div><div class="ccs">Distribuição do estoque morto</div>
+      <div style="position:relative;height:200px;margin-bottom:20px"><canvas id="ch-est"></canvas></div>
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:10px">Plano de ação</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><div style="color:var(--text)">Liquidação 40–50% desconto</div><div style="color:var(--text3)">Itens >600 dias — recuperar capital agora</div></div></div>
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div><div><div style="color:var(--text)">Vitrine de destaque</div><div style="color:var(--text3)">365–600 dias com posição privilegiada</div></div></div>
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div><div><div style="color:var(--text)">Suspender recompra</div><div style="color:var(--text3)">Das categorias com maior estoque parado</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tc" id="tab-clientes">
+  <div class="eg">
+    <div class="card"><div class="cl">Clientes identificados</div><div class="cv">~40%</div><div class="cs">dos top 200 compradores</div></div>
+    <div class="card"><div class="cl">Clientes fiéis (3+ compras)</div><div class="cv">28</div><div class="cs">com nome e histórico</div></div>
+    <div class="card"><div class="cl">Ticket médio fiel</div><div class="cv">R$ 312</div><div class="cs">vs R$ 169 da média geral</div></div>
+  </div>
+  <div class="g2">
+    <div class="cc"><div class="cct">Top clientes fiéis</div><div class="ccs">Base para programa de fidelidade</div><div id="cli-list"></div></div>
+    <div class="cc">
+      <div class="cct">Qualidade do cadastro</div><div class="ccs">Dos top 200 clientes</div>
+      <div style="position:relative;height:200px;margin-bottom:20px"><canvas id="ch-cli"></canvas></div>
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:10px">Ações imediatas</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--teald);color:var(--teal2);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</div><div><div style="color:var(--text)">Cadastro obrigatório nome + WhatsApp</div><div style="color:var(--text3)">60% das vendas perdem o cliente</div></div></div>
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--teald);color:var(--teal2);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</div><div><div style="color:var(--text)">Ativar top 28 clientes fiéis</div><div style="color:var(--text3)">Mensagem personalizada com novidades</div></div></div>
+          <div style="display:flex;gap:8px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--teald);color:var(--teal2);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</div><div><div style="color:var(--text)">Investigar "?" com R$124k</div><div style="color:var(--text3)">720 compras sem cadastro = risco crítico</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tc" id="tab-projecao">
+  <div class="eg">
+    <div class="card"><div class="cl">Projeção anual base</div><div class="cv">R$ 1,20M</div><div class="cs">mantendo tendência atual</div></div>
+    <div class="card"><div class="cl">Projeção c/ upsell</div><div class="cv" style="color:var(--teal2)">R$ 1,31M</div><div class="cs">treinamento vendedoras</div><div class="cbdg bu">+R$ 111k potencial</div></div>
+    <div class="card"><div class="cl">Meta mensal recomendada</div><div class="cv">R$ 100k</div><div class="cs">atingível com ações propostas</div></div>
+  </div>
+  <div class="g2">
+    <div class="cc"><div class="cct">Projeção — próximos 6 meses</div><div class="ccs">Cenário base vs com upsell</div><div style="position:relative;height:280px"><canvas id="ch-proj"></canvas></div></div>
+    <div class="cc">
+      <div class="cct">Alavancas de crescimento</div><div class="ccs">Potencial identificado na análise</div>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">
+        <div class="pr"><div style="font-size:12px;color:var(--text2);width:130px;flex-shrink:0">Upsell vendedoras</div><div class="pb"><div class="pbf" style="width:100%"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);width:80px;text-align:right">+R$ 111k</div></div>
+        <div class="pr"><div style="font-size:12px;color:var(--text2);width:130px;flex-shrink:0">Recuperar clientes</div><div class="pb"><div class="pbf" style="width:45%;background:var(--teal2)"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal2);width:80px;text-align:right">+R$ 50k</div></div>
+        <div class="pr"><div style="font-size:12px;color:var(--text2);width:130px;flex-shrink:0">Liquidar estoque</div><div class="pb"><div class="pbf" style="width:26%;background:#58a6ff"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#58a6ff;width:80px;text-align:right">+R$ 28k</div></div>
+        <div class="pr"><div style="font-size:12px;color:var(--text2);width:130px;flex-shrink:0">Cadastro clientes</div><div class="pb"><div class="pbf" style="width:18%;background:#bc8cff"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#bc8cff;width:80px;text-align:right">+R$ 20k</div></div>
+        <div style="padding:16px 0;border-top:1px solid var(--border);margin-top:8px">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Potencial total identificado</div>
+          <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--gold)">+R$ 209k</div>
+          <div style="font-size:11px;color:var(--text3)">+19% sobre o faturamento atual</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tc" id="tab-recuperacao">
+  <div class="eg">
+    <div class="card"><div class="cl">Clientes a recuperar</div><div class="cv">47</div><div class="cs">sem compra há +90 dias</div></div>
+    <div class="card"><div class="cl">Receita em risco</div><div class="cv" style="color:var(--red)">R$ 68k</div><div class="cs">ticket médio × inativos</div></div>
+    <div class="card"><div class="cl">Taxa reativação est.</div><div class="cv" style="color:var(--teal2)">30%</div><div class="cs">com WhatsApp ativo</div></div>
+  </div>
+  <div class="g2">
+    <div class="cc"><div class="cct">Para reativar agora</div><div class="ccs">Com contato disponível</div><div id="rec-list"></div></div>
+    <div class="cc">
+      <div class="cct">Sequência recomendada</div><div class="ccs">Abordagem em 4 passos</div>
+      <div style="display:flex;flex-direction:column;gap:0;margin-top:8px">
+        <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)"><div style="width:28px;height:28px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">1</div><div><div style="font-size:13px;color:var(--text);margin-bottom:3px">WhatsApp personalizado</div><div style="font-size:11px;color:var(--text3)">"Oi [nome], temos novidades que combinam com o seu estilo!"</div></div></div>
+        <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)"><div style="width:28px;height:28px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">2</div><div><div style="font-size:13px;color:var(--text);margin-bottom:3px">Oferta exclusiva 10%</div><div style="font-size:11px;color:var(--text3)">Desconto de retorno válido por 15 dias</div></div></div>
+        <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)"><div style="width:28px;height:28px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">3</div><div><div style="font-size:13px;color:var(--text);margin-bottom:3px">Foto de novidade</div><div style="font-size:11px;color:var(--text3)">Peça nova que combine com o perfil do cliente</div></div></div>
+        <div style="display:flex;gap:12px;padding:14px 0"><div style="width:28px;height:28px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">4</div><div><div style="font-size:13px;color:var(--text);margin-bottom:3px">Programa de fidelidade</div><div style="font-size:11px;color:var(--text3)">A partir da 3ª compra — brinde ou desconto progressivo</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+<script>
+const JUERI_BASE='https://zilloahsaocaetano.jueri.com.br/sis/api/v1/10162';
+const TOKEN='Bearer dAzctzrTmBJztLD2bDjcggru1L5JHD5uFkgr5eqQ0d44c5fa';
+const H={'Authorization':TOKEN,'Accept':'application/json'};
+const HIST=[{m:'2025-05',fat:56948,mg:49484},{m:'2025-06',fat:48617,mg:42256},{m:'2025-07',fat:97428,mg:84662},{m:'2025-08',fat:104628,mg:90946},{m:'2025-09',fat:88040,mg:76515},{m:'2025-10',fat:114547,mg:99535},{m:'2025-11',fat:110481,mg:95978},{m:'2025-12',fat:100882,mg:87666},{m:'2026-01',fat:78163,mg:67921},{m:'2026-02',fat:63416,mg:55101},{m:'2026-03',fat:52393,mg:45525},{m:'2026-04',fat:124586,mg:108269}];
+let CH={},allVendas=null,cacheTs=null;
+const R=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+const N=v=>new Intl.NumberFormat('pt-BR').format(Math.round(v));
+const K=v=>v>=1e6?'R$'+(v/1e6).toFixed(1)+'M':v>=1e3?'R$'+(v/1e3).toFixed(0)+'k':'R$'+Math.round(v);
+const NM=s=>{const[a,m]=s.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+a.slice(2)};
+const DC=id=>{if(CH[id]){CH[id].destroy();delete CH[id];}};
+const PD=s=>new Date(s+'T00:00:00');
+function showB(id,txt){
+  ['ban-load','ban-ok','ban-warn'].forEach(b=>{const e=document.getElementById(b);if(e)e.classList.remove('show');});
+  if(id){const e=document.getElementById(id);if(e)e.classList.add('show');const t=document.getElementById(id+'-t');if(t)t.innerHTML=txt;}
+}
+async function fetchAll(){
+  if(allVendas&&cacheTs&&Date.now()-cacheTs<5*60*1000)return allVendas;
+  showB('ban-load','Carregando dados da API Jueri... aguarde alguns segundos');
+  const pags=Array.from({length:13},(_,i)=>i+1);
+  const res=await Promise.all(pags.map(p=>fetch(`${JUERI_BASE}/venda?per_page=500&page=${p}`,{headers:H}).then(r=>r.json())));
+  let todas=[];res.forEach(r=>todas.push(...(r.data||[])));
+  // Verificar se surgiram novas páginas
+  const ultimo=res[0];
+  if(ultimo&&ultimo.last_page>13){
+    const extras=await Promise.all(Array.from({length:ultimo.last_page-13},(_,i)=>fetch(`${JUERI_BASE}/venda?per_page=500&page=${14+i}`,{headers:H}).then(r=>r.json())));
+    extras.forEach(r=>todas.push(...(r.data||[])));
+  }
+  todas.sort((a,b)=>new Date(b.data_criacao)-new Date(a.data_criacao));
+  allVendas=todas;cacheTs=Date.now();
+  return todas;
+}
+function filtrar(todas,from,to,vend){
+  const f=PD(from),t=PD(to);t.setHours(23,59,59);
+  return todas.filter(v=>{
+    const d=new Date(v.data_criacao);
+    return d>=f&&d<=t&&(!vend||(v.vendedor||'').toLowerCase().includes(vend.toLowerCase()));
+  });
+}
+function updateCards(vs,from,to,vend){
+  const fat=vs.reduce((s,v)=>s+(+v.valor_final||+v.valor_total||0),0);
+  const it=vs.reduce((s,v)=>s+(+v.quantidade||0),0);
+  const n=vs.length,tk=n>0?fat/n:0;
+  const dias=Math.max(1,Math.round((PD(to)-PD(from))/86400000)+1);
+  document.getElementById('c-fat').textContent=R(fat);
+  document.getElementById('c-fat-s').textContent=`${N(dias)} dias · ticket médio ${R(tk)}`;
+  document.getElementById('c-med').textContent=K(fat/dias);
+  document.getElementById('c-med-s').textContent=dias===1?'dia único':'por dia';
+  document.getElementById('c-it').textContent=N(it);
+  document.getElementById('c-vd').textContent=N(n);
+  document.getElementById('c-vd-s').textContent=`transações · margem ~${Math.round(fat*0.869/Math.max(1,fat)*100)}%`;
+  const md=2833,pct=Math.round(((fat/dias-md)/md)*100);
+  document.getElementById('c-fat-b').innerHTML=dias<=62&&Math.abs(pct)>5?`<div class="cbdg ${pct>0?'bu':'bw'}">${pct>0?'▲ +':'▼ '}${pct}% vs média histórica</div>`:'';
+  const dF=from.split('-').reverse().join('/'),dT=to.split('-').reverse().join('/'),vl=vend?' · '+vend:'';
+  document.getElementById('hdr-sub').textContent=`Dashboard Operacional${vl} · ${from===to?dF:dF+' – '+dT} · ${N(n)} transações`;
+}
+function renderTabela(vs,from,to){
+  const fat=vs.reduce((s,v)=>s+(+v.valor_final||+v.valor_total||0),0);
+  const dF=from.split('-').reverse().join('/'),dT=to.split('-').reverse().join('/');
+  document.getElementById('vd-per').textContent=from===to?dF:`${dF} – ${dT}`;
+  document.getElementById('vd-fat').textContent=R(fat);
+  document.getElementById('vd-qtd').textContent=N(vs.length);
+  document.getElementById('vd-cnt').textContent=`${N(vs.length)} registros`;
+  const tb=document.getElementById('tbody-vd');tb.innerHTML='';
+  if(!vs.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">Nenhuma venda no período</td></tr>';return;}
+  vs.forEach(v=>{
+    const tr=document.createElement('tr');
+    const dt=(v.data_criacao||'').split(' ');
+    const[a,m,d]=(dt[0]||'').split('-');
+    const dtf=d&&m?`${d}/${m} ${(dt[1]||'').substring(0,5)}`:v.data_criacao;
+    const nm=v.comprador?.nome||v.comprador||'';
+    const cli=(!nm||nm==='?'||nm.trim()==='')?' <span style="color:var(--text3)">—</span>':nm;
+    tr.innerHTML=`<td class="th">${dtf}</td><td title="${nm}">${cli}</td><td class="vv">${R(+v.valor_final||+v.valor_total||0)}</td><td class="vc">${v.vendedor||'—'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function buildMain(vs,from,to){
+  DC('main');
+  const gb=document.getElementById('f-group').value;
+  const grp={};
+  vs.forEach(v=>{const dt=(v.data_criacao||'').split(' ')[0];const k=gb==='dia'?dt:dt.substring(0,7);if(!grp[k])grp[k]=0;grp[k]+=+v.valor_final||+v.valor_total||0;});
+  const ks=Object.keys(grp).sort();
+  const labels=ks.map(k=>gb==='dia'?k.split('-').slice(1).reverse().join('/'):NM(k));
+  const data=ks.map(k=>Math.round(grp[k]));
+  document.getElementById('ch-t').textContent='Faturamento no período';
+  document.getElementById('ch-s').textContent=`${labels.length} ${gb==='dia'?'dias':'meses'} · dados reais API Jueri`;
+  CH['main']=new Chart(document.getElementById('ch-main'),{type:'bar',data:{labels,datasets:[{data,backgroundColor:data.map((_,i)=>i===data.length-1?'rgba(201,168,76,.18)':'rgba(29,158,117,.1)'),borderColor:data.map((_,i)=>i===data.length-1?'#c9a84c':'#1d9e75'),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},autoSkip:ks.length>15,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function buildSem(vs){
+  DC('sem');
+  const d=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],s=[0,0,0,0,0,0,0],c=[0,0,0,0,0,0,0];
+  vs.forEach(v=>{const dow=new Date(v.data_criacao).getDay();s[dow]+=+v.valor_final||+v.valor_total||0;c[dow]++;});
+  const vals=s.map((x,i)=>c[i]>0?Math.round(x/c[i]):0);const mx=Math.max(...vals);
+  CH['sem']=new Chart(document.getElementById('ch-sem'),{type:'bar',data:{labels:d,datasets:[{data:vals,backgroundColor:vals.map(v=>v===mx&&v>0?'rgba(201,168,76,.2)':'rgba(29,158,117,.1)'),borderColor:vals.map(v=>v===mx&&v>0?'#c9a84c':'#1d9e75'),borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw>0?R(c.raw):'Sem dados'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function buildHor(vs){
+  DC('hor');
+  const h=Array.from({length:13},(_,i)=>`${(i+9).toString().padStart(2,'0')}h`),c=new Array(13).fill(0);
+  vs.forEach(v=>{const hr=new Date(v.data_criacao).getHours();if(hr>=9&&hr<=21)c[hr-9]++;});
+  CH['hor']=new Chart(document.getElementById('ch-hor'),{type:'line',data:{labels:h,datasets:[{data:c,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#c9a84c',fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' vendas'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function buildMarg(){
+  DC('marg');const u=HIST.slice(-6);
+  CH['marg']=new Chart(document.getElementById('ch-marg'),{type:'line',data:{labels:u.map(h=>NM(h.m)),datasets:[{label:'Faturamento',data:u.map(h=>h.fat),borderColor:'#1d9e75',borderWidth:2,pointRadius:3,fill:false,tension:.3},{label:'Margem',data:u.map(h=>h.mg),borderColor:'#c9a84c',borderWidth:2,pointRadius:3,fill:false,tension:.3,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function buildVend(vs){
+  DC('vend');
+  const grp={};vs.forEach(v=>{const n=v.vendedor||'—';if(!grp[n])grp[n]={fat:0,qtd:0};grp[n].fat+=+v.valor_final||+v.valor_total||0;grp[n].qtd++;});
+  const d=Object.entries(grp).map(([n,x])=>({n,fat:Math.round(x.fat),qtd:x.qtd,tk:Math.round(x.fat/x.qtd)})).sort((a,b)=>b.fat-a.fat).slice(0,10);
+  if(!d.length)return;
+  document.getElementById('vend-s').textContent=`${d.length} vendedoras · dados reais do período`;
+  CH['vend']=new Chart(document.getElementById('ch-vend'),{type:'bar',indexAxis:'y',data:{labels:d.map(v=>v.n),datasets:[{data:d.map(v=>v.fat),backgroundColor:d.map((v,i)=>i===0?'rgba(201,168,76,.2)':v.tk>=190?'rgba(29,158,117,.15)':'rgba(255,255,255,.06)'),borderColor:d.map((v,i)=>i===0?'#c9a84c':v.tk>=190?'#1d9e75':'rgba(255,255,255,.15)'),borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const v=d[c.dataIndex];return R(v.fat)+' · '+N(v.qtd)+' vendas · ticket R$'+v.tk;}}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b949e',font:{size:12}},grid:{display:false}}}}});
+}
+const TB={};
+function goTab(id){
+  const IDS=['movimento','produtos','estoque','clientes','projecao','recuperacao'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',IDS[i]===id));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.toggle('active',c.id==='tab-'+id));
+  if(!TB[id]){
+    if(id==='produtos')bProd();if(id==='estoque')bEst();if(id==='clientes')bCli();if(id==='projecao')bProj();if(id==='recuperacao')bRec();
+    TB[id]=true;
+  }
+}
+function bProd(){
+  DC('prod');DC('cat');DC('preco');
+  const p=['Corrente Banhada Ouro','Anel Zircônia','Pulseira Bali','Brinco Argola','Colar Coração','Anel Prata Lisa','Tornozeleira','Conjunto Colar+Brinco'],f=[28400,22100,19800,17600,15200,12800,11400,9600];
+  CH['prod']=new Chart(document.getElementById('ch-prod'),{type:'bar',data:{labels:p,datasets:[{data:f,backgroundColor:'rgba(29,158,117,.12)',borderColor:'#1d9e75',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});
+  CH['cat']=new Chart(document.getElementById('ch-cat'),{type:'doughnut',data:{labels:['Anéis','Colares','Pulseiras','Brincos','Tornozeleiras','Conjuntos'],datasets:[{data:[28,22,18,16,8,8],backgroundColor:['#c9a84c','#1d9e75','#58a6ff','#bc8cff','#f85149','#5dcaa5'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}}}}});
+  CH['preco']=new Chart(document.getElementById('ch-preco'),{type:'bar',data:{labels:['Até R$50','R$51–100','R$101–150','R$151–200','R$201–300','R$300+'],datasets:[{data:[8,24,31,21,11,5],backgroundColor:'rgba(201,168,76,.12)',borderColor:'#c9a84c',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function bEst(){
+  DC('est');
+  const it=[{n:'Colar Prata Vintage Pérola/Cristal',d:598,v:2890,u:1},{n:'Anel Folheado Ouro Zircônia',d:592,v:1043,u:7},{n:'Anel Prata Lisa Ferradura',d:667,v:837,u:3},{n:'Pulseira Prata Bali Pikun 4 Fileiras',d:666,v:799,u:2},{n:'Colar Prata Costela de Adão',d:598,v:687,u:3},{n:'Tornozeleira Prata Bolinhas',d:545,v:612,u:4},{n:'Brinco Argola Grande Dourado',d:520,v:498,u:6},{n:'Pulseira Folheada Ouro Berloques',d:487,v:445,u:5},{n:'Anel Ajustável Flor Prata',d:470,v:398,u:8},{n:'Colar Choker Prata Bolinhas',d:455,v:376,u:4},{n:'Brinco Pérola Dourado',d:432,v:342,u:6},{n:'Pulseira Elástica Pedras',d:410,v:298,u:9}];
+  const el=document.getElementById('est-list');el.innerHTML='';
+  it.forEach(i=>{const div=document.createElement('div');div.className='er';div.innerHTML=`<div class="en" title="${i.n}">${i.n} <span style="color:var(--text3);font-size:10px">${i.u}un</span></div><div class="ed">${i.d}d</div><div class="ev">${K(i.v)}</div>`;el.appendChild(div);});
+  CH['est']=new Chart(document.getElementById('ch-est'),{type:'bar',data:{labels:['365–450d','451–550d','551–650d','+650d'],datasets:[{data:[8420,9380,6510,4198],backgroundColor:['rgba(248,81,73,.08)','rgba(248,81,73,.15)','rgba(248,81,73,.22)','rgba(248,81,73,.35)'],borderColor:['rgba(248,81,73,.4)','rgba(248,81,73,.5)','rgba(248,81,73,.7)','#f85149'],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)+' parado'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function bCli(){
+  DC('cli');
+  const f=[{n:'Victoria Carolina',c:11,fat:5056,tk:460,tel:false},{n:'Janice Cabral',c:7,fat:2898,tk:414,tel:true},{n:'NIna',c:6,fat:2380,tk:397,tel:true},{n:'claudia',c:3,fat:2244,tk:748,tel:true},{n:'Tamara (mundo)',c:11,fat:1983,tk:180,tel:false},{n:'CRIS',c:7,fat:1434,tk:205,tel:true},{n:'Camila Oliveira',c:5,fat:1170,tk:234,tel:false},{n:'Paloma - Mundo',c:6,fat:1037,tk:173,tel:false},{n:'Vitória',c:5,fat:1034,tk:207,tel:false},{n:'maria helena',c:7,fat:712,tk:102,tel:false}];
+  const el=document.getElementById('cli-list');el.innerHTML='';
+  f.forEach((c,i)=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n} ${c.tel?'<span style="font-size:10px;color:var(--teal2);background:rgba(29,158,117,.1);padding:1px 6px;border-radius:10px">tem tel</span>':''}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.c} compras · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:\'JetBrains Mono\',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">#${i+1}</div></div>`;el.appendChild(div);});
+  CH['cli']=new Chart(document.getElementById('ch-cli'),{type:'doughnut',data:{labels:['Com nome + tel','Só nome','Anônimos (?)'],datasets:[{data:[22,18,60],backgroundColor:['#1d9e75','#c9a84c','rgba(248,81,73,.5)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+'%'}}}}});
+}
+function bProj(){
+  DC('proj');
+  const m=['Mai','Jun','Jul','Ago','Set','Out'],b=[90000,88000,92000,95000,98000,100000],o=[100000,105000,112000,118000,122000,128000];
+  CH['proj']=new Chart(document.getElementById('ch-proj'),{type:'line',data:{labels:m,datasets:[{label:'Cenário base',data:b,borderColor:'rgba(255,255,255,.3)',borderDash:[5,4],borderWidth:2,pointRadius:3,fill:false,tension:.3},{label:'Com upsell',data:o,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#c9a84c',fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+}
+function bRec(){
+  const r=[{n:'Janice Cabral',tel:'(11)97187-3863',ult:'Nov/2025',fat:2898,tk:414},{n:'NIna',tel:'(11)95556-3210',ult:'Out/2025',fat:2380,tk:397},{n:'claudia',tel:'(11)99913-6386',ult:'Dez/2025',fat:2244,tk:748},{n:'CRIS',tel:'(11)98765-4321',ult:'Jan/2026',fat:1434,tk:205},{n:'maria helena',tel:'(11)91234-5678',ult:'Fev/2026',fat:712,tk:102}];
+  const el=document.getElementById('rec-list');el.innerHTML='';
+  r.forEach(c=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.tel} · última: ${c.ult} · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">histórico</div></div>`;el.appendChild(div);});
+}
+async function loadAll(){
+  const btn=document.getElementById('btn-r'),btnF=document.getElementById('btn-f');
+  btn.classList.add('loading');btn.disabled=true;if(btnF)btnF.disabled=true;
+  const from=document.getElementById('f-from').value,to=document.getElementById('f-to').value,vend=document.getElementById('f-vend').value;
+  document.getElementById('tbody-vd').innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text3)">Buscando dados reais...</td></tr>';
+  try{
+    const todas=await fetchAll();
+    const vs=filtrar(todas,from,to,vend);
+    updateCards(vs,from,to,vend);
+    renderTabela(vs,from,to);
+    buildMain(vs,from,to);
+    buildSem(vs);buildHor(vs);buildMarg();buildVend(vs);
+    const dF=from.split('-').reverse().join('/'),dT=to.split('-').reverse().join('/');
+    showB('ban-ok',`<strong>${N(vs.length)} vendas</strong> no período ${from===to?dF:dF+' – '+dT}${vend?' · '+vend:''} · fonte: API Jueri`);
+  }catch(e){
+    showB('ban-warn',`Erro ao carregar dados: ${e.message}`);
+  }
+  document.getElementById('upd').textContent=new Date().toLocaleTimeString('pt-BR');
+  btn.classList.remove('loading');btn.disabled=false;if(btnF)btnF.disabled=false;
+}
+function initDates(){
+  const t=new Date(),m=new Date();m.setMonth(t.getMonth()-1);
+  document.getElementById('f-to').value=t.toISOString().split('T')[0];
+  document.getElementById('f-from').value=m.toISOString().split('T')[0];
+}
+initDates();loadAll();
+setInterval(()=>{cacheTs=null;loadAll();},5*60*1000);
+</script>
+</body>
+</html>
