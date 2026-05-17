@@ -73,6 +73,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .pb{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}.pbf{height:100%;border-radius:4px;background:var(--gold)}
 .skel{background:linear-gradient(90deg,var(--bg3) 25%,#21293a 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:28px;margin-top:4px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.leg{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.leg-dot{width:12px;height:3px;border-radius:2px}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -160,12 +163,19 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
   <div class="g3">
     <div class="cc"><div class="cct">Média por dia da semana</div><div class="ccs">Calculado do período</div><div style="position:relative;height:200px"><canvas id="ch-sem"></canvas></div></div>
     <div class="cc"><div class="cct">Horário de maior fluxo</div><div class="ccs">Calculado do período</div><div style="position:relative;height:200px"><canvas id="ch-hor"></canvas></div></div>
-    <div class="cc"><div class="cct">Faturamento vs Margem</div><div class="ccs">Histórico mensal</div><div style="position:relative;height:200px"><canvas id="ch-marg"></canvas></div></div>
+    <div class="cc">
+      <div class="cct">Faturamento vs O que ficou no bolso</div>
+      <div class="leg">
+        <div class="leg-item"><div class="leg-dot" style="background:#1d9e75;height:12px;border-radius:3px;width:12px"></div>Faturamento total</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#c9a84c;border-top:2px dashed #c9a84c;height:0;width:20px"></div>O que ficou no bolso</div>
+      </div>
+      <div style="position:relative;height:180px"><canvas id="ch-marg"></canvas></div>
+    </div>
   </div>
   <div class="cc" style="margin-bottom:16px">
     <div class="cct" id="vend-t">Performance de vendedoras</div>
     <div class="ccs" id="vend-s">Calculado do período</div>
-    <div style="position:relative;height:220px"><canvas id="ch-vend"></canvas></div>
+    <div style="position:relative;height:240px"><canvas id="ch-vend"></canvas></div>
   </div>
 </div>
 <div class="tc" id="tab-produtos">
@@ -264,11 +274,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 </div>
 </main>
 <script>
-// ══════════════════════════════════════════
-// PROXY CLOUDFLARE — resolve o CORS
-// Todas as chamadas passam pelo Worker
-// ══════════════════════════════════════════
-const PROXY = 'https://zilloah-proxy.throbbing-unit-f265.workers.dev';
+const PROXY='https://zilloah-proxy.throbbing-unit-f265.workers.dev';
 const HIST=[{m:'2025-05',fat:56948,mg:49484},{m:'2025-06',fat:48617,mg:42256},{m:'2025-07',fat:97428,mg:84662},{m:'2025-08',fat:104628,mg:90946},{m:'2025-09',fat:88040,mg:76515},{m:'2025-10',fat:114547,mg:99535},{m:'2025-11',fat:110481,mg:95978},{m:'2025-12',fat:100882,mg:87666},{m:'2026-01',fat:78163,mg:67921},{m:'2026-02',fat:63416,mg:55101},{m:'2026-03',fat:52393,mg:45525},{m:'2026-04',fat:124586,mg:108269}];
 let CH={},allVendas=null,cacheTs=null;
 const R=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
@@ -277,6 +283,11 @@ const K=v=>v>=1e6?'R$'+(v/1e6).toFixed(1)+'M':v>=1e3?'R$'+(v/1e3).toFixed(0)+'k'
 const NM=s=>{const[a,m]=s.split('-');return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]+'/'+a.slice(2)};
 const DC=id=>{if(CH[id]){CH[id].destroy();delete CH[id];}};
 const PD=s=>new Date(s+'T00:00:00');
+
+// Opções padrão de rótulos de dados nas barras
+const datalabelsBar={display:true,color:'#8b949e',anchor:'end',align:'top',font:{size:9,family:'JetBrains Mono'},formatter:K};
+const datalabelsBarGold={...datalabelsBar,color:'#c9a84c'};
+
 function showB(id,txt){
   ['ban-load','ban-ok','ban-warn'].forEach(b=>{const e=document.getElementById(b);if(e)e.classList.remove('show');});
   if(id){const e=document.getElementById(id);if(e)e.classList.add('show');const t=document.getElementById(id+'-t');if(t)t.innerHTML=txt;}
@@ -284,17 +295,11 @@ function showB(id,txt){
 async function fetchAll(){
   if(allVendas&&cacheTs&&Date.now()-cacheTs<5*60*1000)return allVendas;
   showB('ban-load','Carregando dados via proxy... aguarde alguns segundos');
-  // Buscar página 1 para saber total de páginas
-  const prim = await fetch(`${PROXY}?per_page=500&page=1`).then(r=>r.json());
-  const totalPags = prim.last_page || 13;
-  let todas = [...(prim.data||[])];
-  // Buscar páginas restantes em paralelo
-  if(totalPags > 1){
-    const resto = await Promise.all(
-      Array.from({length:totalPags-1},(_,i)=>
-        fetch(`${PROXY}?per_page=500&page=${i+2}`).then(r=>r.json())
-      )
-    );
+  const prim=await fetch(`${PROXY}?per_page=500&page=1`).then(r=>r.json());
+  const totalPags=prim.last_page||13;
+  let todas=[...(prim.data||[])];
+  if(totalPags>1){
+    const resto=await Promise.all(Array.from({length:totalPags-1},(_,i)=>fetch(`${PROXY}?per_page=500&page=${i+2}`).then(r=>r.json())));
     resto.forEach(r=>todas.push(...(r.data||[])));
   }
   todas.sort((a,b)=>new Date(b.data_criacao)-new Date(a.data_criacao));
@@ -303,10 +308,7 @@ async function fetchAll(){
 }
 function filtrar(todas,from,to,vend){
   const f=PD(from),t=PD(to);t.setHours(23,59,59);
-  return todas.filter(v=>{
-    const d=new Date(v.data_criacao);
-    return d>=f&&d<=t&&(!vend||(v.vendedor||'').toLowerCase().includes(vend.toLowerCase()));
-  });
+  return todas.filter(v=>{const d=new Date(v.data_criacao);return d>=f&&d<=t&&(!vend||(v.vendedor||'').toLowerCase().includes(vend.toLowerCase()));});
 }
 function updateCards(vs,from,to,vend){
   const fat=vs.reduce((s,v)=>s+(+v.valor_final||+v.valor_total||0),0);
@@ -319,7 +321,7 @@ function updateCards(vs,from,to,vend){
   document.getElementById('c-med-s').textContent=dias===1?'dia único':'por dia';
   document.getElementById('c-it').textContent=N(it);
   document.getElementById('c-vd').textContent=N(n);
-  document.getElementById('c-vd-s').textContent=`transações · margem ~87%`;
+  document.getElementById('c-vd-s').textContent='transações · margem ~87%';
   const md=2833,pct=Math.round(((fat/dias-md)/md)*100);
   document.getElementById('c-fat-b').innerHTML=dias<=62&&Math.abs(pct)>5?`<div class="cbdg ${pct>0?'bu':'bw'}">${pct>0?'▲ +':'▼ '}${pct}% vs média histórica</div>`:'';
   const dF=from.split('-').reverse().join('/'),dT=to.split('-').reverse().join('/'),vl=vend?' · '+vend:'';
@@ -345,6 +347,8 @@ function renderTabela(vs,from,to){
     tb.appendChild(tr);
   });
 }
+
+// ── GRÁFICO PRINCIPAL — com rótulos nas barras ──
 function buildMain(vs,from,to){
   DC('main');
   const gb=document.getElementById('f-group').value;
@@ -355,33 +359,103 @@ function buildMain(vs,from,to){
   const data=ks.map(k=>Math.round(grp[k]));
   document.getElementById('ch-t').textContent='Faturamento no período';
   document.getElementById('ch-s').textContent=`${labels.length} ${gb==='dia'?'dias':'meses'} · dados reais`;
-  CH['main']=new Chart(document.getElementById('ch-main'),{type:'bar',data:{labels,datasets:[{data,backgroundColor:data.map((_,i)=>i===data.length-1?'rgba(201,168,76,.18)':'rgba(29,158,117,.1)'),borderColor:data.map((_,i)=>i===data.length-1?'#c9a84c':'#1d9e75'),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},autoSkip:ks.length>15,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  const isMany=labels.length>8;
+  CH['main']=new Chart(document.getElementById('ch-main'),{type:'bar',
+    data:{labels,datasets:[{data,
+      backgroundColor:data.map((_,i)=>i===data.length-1?'rgba(201,168,76,.18)':'rgba(29,158,117,.1)'),
+      borderColor:data.map((_,i)=>i===data.length-1?'#c9a84c':'#1d9e75'),
+      borderWidth:1.5,borderRadius:4,
+      datalabels:isMany?{display:false}:{...datalabelsBar,formatter:K}}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:20}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}},
+        datalabels:isMany?{display:false}:{display:true,color:'#8b949e',anchor:'end',align:'top',font:{size:9},formatter:K}},
+      scales:{x:{ticks:{color:'#6e7681',font:{size:10},autoSkip:ks.length>15,maxRotation:45},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
 }
+
+// ── DIA DA SEMANA — com rótulos ──
 function buildSem(vs){
   DC('sem');
   const d=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],s=[0,0,0,0,0,0,0],c=[0,0,0,0,0,0,0];
   vs.forEach(v=>{const dow=new Date(v.data_criacao).getDay();s[dow]+=+v.valor_final||+v.valor_total||0;c[dow]++;});
   const vals=s.map((x,i)=>c[i]>0?Math.round(x/c[i]):0);const mx=Math.max(...vals);
-  CH['sem']=new Chart(document.getElementById('ch-sem'),{type:'bar',data:{labels:d,datasets:[{data:vals,backgroundColor:vals.map(v=>v===mx&&v>0?'rgba(201,168,76,.2)':'rgba(29,158,117,.1)'),borderColor:vals.map(v=>v===mx&&v>0?'#c9a84c':'#1d9e75'),borderWidth:1.5,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw>0?R(c.raw):'Sem dados'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  CH['sem']=new Chart(document.getElementById('ch-sem'),{type:'bar',
+    data:{labels:d,datasets:[{data:vals,
+      backgroundColor:vals.map(v=>v===mx&&v>0?'rgba(201,168,76,.2)':'rgba(29,158,117,.1)'),
+      borderColor:vals.map(v=>v===mx&&v>0?'#c9a84c':'#1d9e75'),
+      borderWidth:1.5,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:20}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw>0?R(c.raw):'Sem dados'}},
+        datalabels:{display:true,color:'#8b949e',anchor:'end',align:'top',font:{size:9},formatter:v=>v>0?K(v):''}},
+      scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},
+              y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
 }
+
 function buildHor(vs){
   DC('hor');
   const h=Array.from({length:13},(_,i)=>`${(i+9).toString().padStart(2,'0')}h`),c=new Array(13).fill(0);
   vs.forEach(v=>{const hr=new Date(v.data_criacao).getHours();if(hr>=9&&hr<=21)c[hr-9]++;});
-  CH['hor']=new Chart(document.getElementById('ch-hor'),{type:'line',data:{labels:h,datasets:[{data:c,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#c9a84c',fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' vendas'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  CH['hor']=new Chart(document.getElementById('ch-hor'),{type:'line',
+    data:{labels:h,datasets:[{data:c,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#c9a84c',fill:true,tension:.4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' vendas'}}},
+      scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},
+              y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}});
 }
+
+// ── FATURAMENTO vs O QUE FICOU NO BOLSO ──
 function buildMarg(){
-  DC('marg');const u=HIST.slice(-6);
-  CH['marg']=new Chart(document.getElementById('ch-marg'),{type:'line',data:{labels:u.map(h=>NM(h.m)),datasets:[{label:'Faturamento',data:u.map(h=>h.fat),borderColor:'#1d9e75',borderWidth:2,pointRadius:3,fill:false,tension:.3},{label:'Margem',data:u.map(h=>h.mg),borderColor:'#c9a84c',borderWidth:2,pointRadius:3,fill:false,tension:.3,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
+  DC('marg');
+  const u=HIST.slice(-6);
+  CH['marg']=new Chart(document.getElementById('ch-marg'),{type:'bar',
+    data:{labels:u.map(h=>NM(h.m)),datasets:[
+      {type:'bar',label:'Faturamento total',data:u.map(h=>h.fat),
+        backgroundColor:'rgba(29,158,117,.15)',borderColor:'#1d9e75',borderWidth:1.5,borderRadius:3,order:2},
+      {type:'line',label:'O que ficou no bolso',data:u.map(h=>h.mg),
+        borderColor:'#c9a84c',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#c9a84c',
+        fill:false,tension:.3,borderDash:[5,3],order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{color:'#8b949e',font:{size:10},boxWidth:14,padding:12}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}
+      },
+      scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},
+              y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});
 }
+
+// ── VENDEDORAS — corrigido + rótulos ──
 function buildVend(vs){
   DC('vend');
-  const grp={};vs.forEach(v=>{const n=v.vendedor||'—';if(!grp[n])grp[n]={fat:0,qtd:0};grp[n].fat+=+v.valor_final||+v.valor_total||0;grp[n].qtd++;});
+  const grp={};
+  vs.forEach(v=>{const n=v.vendedor||'—';if(!grp[n])grp[n]={fat:0,qtd:0};grp[n].fat+=+v.valor_final||+v.valor_total||0;grp[n].qtd++;});
   const d=Object.entries(grp).map(([n,x])=>({n,fat:Math.round(x.fat),qtd:x.qtd,tk:Math.round(x.fat/x.qtd)})).sort((a,b)=>b.fat-a.fat).slice(0,10);
   if(!d.length)return;
   document.getElementById('vend-s').textContent=`${d.length} vendedoras · dados reais do período`;
-  CH['vend']=new Chart(document.getElementById('ch-vend'),{type:'bar',indexAxis:'y',data:{labels:d.map(v=>v.n),datasets:[{data:d.map(v=>v.fat),backgroundColor:d.map((v,i)=>i===0?'rgba(201,168,76,.2)':v.tk>=190?'rgba(29,158,117,.15)':'rgba(255,255,255,.06)'),borderColor:d.map((v,i)=>i===0?'#c9a84c':v.tk>=190?'#1d9e75':'rgba(255,255,255,.15)'),borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const v=d[c.dataIndex];return R(v.fat)+' · '+N(v.qtd)+' vendas · ticket R$'+v.tk;}}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b949e',font:{size:12}},grid:{display:false}}}}});
+  CH['vend']=new Chart(document.getElementById('ch-vend'),{type:'bar',
+    data:{
+      labels:d.map(v=>v.n),
+      datasets:[{data:d.map(v=>v.fat),
+        backgroundColor:d.map((v,i)=>i===0?'rgba(201,168,76,.2)':v.tk>=190?'rgba(29,158,117,.15)':'rgba(255,255,255,.06)'),
+        borderColor:d.map((v,i)=>i===0?'#c9a84c':v.tk>=190?'#1d9e75':'rgba(255,255,255,.15)'),
+        borderWidth:1,borderRadius:3}]},
+    options:{
+      indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:80}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>{const v=d[c.dataIndex];return R(v.fat)+' · '+N(v.qtd)+' vendas · ticket R$'+v.tk;}}},
+        datalabels:{display:true,color:'#c9a84c',anchor:'end',align:'right',font:{size:10,weight:'600'},formatter:K}
+      },
+      scales:{
+        x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{type:'category',ticks:{color:'#8b949e',font:{size:12}},grid:{display:false}}
+      }}});
 }
+
 const TB={};
 function goTab(id){
   const IDS=['movimento','produtos','estoque','clientes','projecao','recuperacao'];
@@ -392,11 +466,12 @@ function goTab(id){
     TB[id]=true;
   }
 }
-function bProd(){DC('prod');DC('cat');DC('preco');const p=['Corrente Banhada Ouro','Anel Zircônia','Pulseira Bali','Brinco Argola','Colar Coração','Anel Prata Lisa','Tornozeleira','Conjunto Colar+Brinco'],f=[28400,22100,19800,17600,15200,12800,11400,9600];CH['prod']=new Chart(document.getElementById('ch-prod'),{type:'bar',data:{labels:p,datasets:[{data:f,backgroundColor:'rgba(29,158,117,.12)',borderColor:'#1d9e75',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});CH['cat']=new Chart(document.getElementById('ch-cat'),{type:'doughnut',data:{labels:['Anéis','Colares','Pulseiras','Brincos','Tornozeleiras','Conjuntos'],datasets:[{data:[28,22,18,16,8,8],backgroundColor:['#c9a84c','#1d9e75','#58a6ff','#bc8cff','#f85149','#5dcaa5'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}}}}});CH['preco']=new Chart(document.getElementById('ch-preco'),{type:'bar',data:{labels:['Até R$50','R$51–100','R$101–150','R$151–200','R$201–300','R$300+'],datasets:[{data:[8,24,31,21,11,5],backgroundColor:'rgba(201,168,76,.12)',borderColor:'#c9a84c',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});}
-function bEst(){DC('est');const it=[{n:'Colar Prata Vintage Pérola/Cristal',d:598,v:2890,u:1},{n:'Anel Folheado Ouro Zircônia',d:592,v:1043,u:7},{n:'Anel Prata Lisa Ferradura',d:667,v:837,u:3},{n:'Pulseira Prata Bali Pikun 4 Fileiras',d:666,v:799,u:2},{n:'Colar Prata Costela de Adão',d:598,v:687,u:3},{n:'Tornozeleira Prata Bolinhas',d:545,v:612,u:4},{n:'Brinco Argola Grande Dourado',d:520,v:498,u:6},{n:'Pulseira Folheada Ouro Berloques',d:487,v:445,u:5},{n:'Anel Ajustável Flor Prata',d:470,v:398,u:8},{n:'Colar Choker Prata Bolinhas',d:455,v:376,u:4},{n:'Brinco Pérola Dourado',d:432,v:342,u:6},{n:'Pulseira Elástica Pedras',d:410,v:298,u:9}];const el=document.getElementById('est-list');el.innerHTML='';it.forEach(i=>{const div=document.createElement('div');div.className='er';div.innerHTML=`<div class="en" title="${i.n}">${i.n} <span style="color:var(--text3);font-size:10px">${i.u}un</span></div><div class="ed">${i.d}d</div><div class="ev">${K(i.v)}</div>`;el.appendChild(div);});CH['est']=new Chart(document.getElementById('ch-est'),{type:'bar',data:{labels:['365–450d','451–550d','551–650d','+650d'],datasets:[{data:[8420,9380,6510,4198],backgroundColor:['rgba(248,81,73,.08)','rgba(248,81,73,.15)','rgba(248,81,73,.22)','rgba(248,81,73,.35)'],borderColor:['rgba(248,81,73,.4)','rgba(248,81,73,.5)','rgba(248,81,73,.7)','#f85149'],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)+' parado'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});}
+function bProd(){DC('prod');DC('cat');DC('preco');const p=['Corrente Banhada Ouro','Anel Zircônia','Pulseira Bali','Brinco Argola','Colar Coração','Anel Prata Lisa','Tornozeleira','Conjunto Colar+Brinco'],f=[28400,22100,19800,17600,15200,12800,11400,9600];CH['prod']=new Chart(document.getElementById('ch-prod'),{type:'bar',data:{labels:p,datasets:[{data:f,backgroundColor:'rgba(29,158,117,.12)',borderColor:'#1d9e75',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:70}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}},datalabels:{display:true,color:'#1d9e75',anchor:'end',align:'right',font:{size:10},formatter:K}},scales:{x:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}},y:{type:'category',ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}}}});CH['cat']=new Chart(document.getElementById('ch-cat'),{type:'doughnut',data:{labels:['Anéis','Colares','Pulseiras','Brincos','Tornozeleiras','Conjuntos'],datasets:[{data:[28,22,18,16,8,8],backgroundColor:['#c9a84c','#1d9e75','#58a6ff','#bc8cff','#f85149','#5dcaa5'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}}}}});CH['preco']=new Chart(document.getElementById('ch-preco'),{type:'bar',data:{labels:['Até R$50','R$51–100','R$101–150','R$151–200','R$201–300','R$300+'],datasets:[{data:[8,24,31,21,11,5],backgroundColor:'rgba(201,168,76,.12)',borderColor:'#c9a84c',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}},datalabels:{display:true,color:'#c9a84c',anchor:'end',align:'top',font:{size:9},formatter:v=>v+'%'}},scales:{x:{ticks:{color:'#6e7681',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.04)'}}}}});}
+function bEst(){DC('est');const it=[{n:'Colar Prata Vintage Pérola/Cristal',d:598,v:2890,u:1},{n:'Anel Folheado Ouro Zircônia',d:592,v:1043,u:7},{n:'Anel Prata Lisa Ferradura',d:667,v:837,u:3},{n:'Pulseira Prata Bali Pikun 4 Fileiras',d:666,v:799,u:2},{n:'Colar Prata Costela de Adão',d:598,v:687,u:3},{n:'Tornozeleira Prata Bolinhas',d:545,v:612,u:4},{n:'Brinco Argola Grande Dourado',d:520,v:498,u:6},{n:'Pulseira Folheada Ouro Berloques',d:487,v:445,u:5},{n:'Anel Ajustável Flor Prata',d:470,v:398,u:8},{n:'Colar Choker Prata Bolinhas',d:455,v:376,u:4},{n:'Brinco Pérola Dourado',d:432,v:342,u:6},{n:'Pulseira Elástica Pedras',d:410,v:298,u:9}];const el=document.getElementById('est-list');el.innerHTML='';it.forEach(i=>{const div=document.createElement('div');div.className='er';div.innerHTML=`<div class="en" title="${i.n}">${i.n} <span style="color:var(--text3);font-size:10px">${i.u}un</span></div><div class="ed">${i.d}d</div><div class="ev">${K(i.v)}</div>`;el.appendChild(div);});CH['est']=new Chart(document.getElementById('ch-est'),{type:'bar',data:{labels:['365–450d','451–550d','551–650d','+650d'],datasets:[{data:[8420,9380,6510,4198],backgroundColor:['rgba(248,81,73,.08)','rgba(248,81,73,.15)','rgba(248,81,73,.22)','rgba(248,81,73,.35)'],borderColor:['rgba(248,81,73,.4)','rgba(248,81,73,.5)','rgba(248,81,73,.7)','#f85149'],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)+' parado'}},datalabels:{display:true,color:'#f85149',anchor:'end',align:'top',font:{size:9},formatter:K}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});}
 function bCli(){DC('cli');const f=[{n:'Victoria Carolina',c:11,fat:5056,tk:460,tel:false},{n:'Janice Cabral',c:7,fat:2898,tk:414,tel:true},{n:'NIna',c:6,fat:2380,tk:397,tel:true},{n:'claudia',c:3,fat:2244,tk:748,tel:true},{n:'Tamara (mundo)',c:11,fat:1983,tk:180,tel:false},{n:'CRIS',c:7,fat:1434,tk:205,tel:true},{n:'Camila Oliveira',c:5,fat:1170,tk:234,tel:false},{n:'Paloma - Mundo',c:6,fat:1037,tk:173,tel:false},{n:'Vitória',c:5,fat:1034,tk:207,tel:false},{n:'maria helena',c:7,fat:712,tk:102,tel:false}];const el=document.getElementById('cli-list');el.innerHTML='';f.forEach((c,i)=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n} ${c.tel?'<span style="font-size:10px;color:var(--teal2);background:rgba(29,158,117,.1);padding:1px 6px;border-radius:10px">tem tel</span>':''}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.c} compras · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">#${i+1}</div></div>`;el.appendChild(div);});CH['cli']=new Chart(document.getElementById('ch-cli'),{type:'doughnut',data:{labels:['Com nome + tel','Só nome','Anônimos (?)'],datasets:[{data:[22,18,60],backgroundColor:['#1d9e75','#c9a84c','rgba(248,81,73,.5)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+'%'}}}}});}
 function bProj(){DC('proj');const m=['Mai','Jun','Jul','Ago','Set','Out'],b=[90000,88000,92000,95000,98000,100000],o=[100000,105000,112000,118000,122000,128000];CH['proj']=new Chart(document.getElementById('ch-proj'),{type:'line',data:{labels:m,datasets:[{label:'Cenário base',data:b,borderColor:'rgba(255,255,255,.3)',borderDash:[5,4],borderWidth:2,pointRadius:3,fill:false,tension:.3},{label:'Com upsell',data:o,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#c9a84c',fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}},scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});}
 function bRec(){const r=[{n:'Janice Cabral',tel:'(11)97187-3863',ult:'Nov/2025',fat:2898,tk:414},{n:'NIna',tel:'(11)95556-3210',ult:'Out/2025',fat:2380,tk:397},{n:'claudia',tel:'(11)99913-6386',ult:'Dez/2025',fat:2244,tk:748},{n:'CRIS',tel:'(11)98765-4321',ult:'Jan/2026',fat:1434,tk:205},{n:'maria helena',tel:'(11)91234-5678',ult:'Fev/2026',fat:712,tk:102}];const el=document.getElementById('rec-list');el.innerHTML='';r.forEach(c=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.tel} · última: ${c.ult} · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">histórico</div></div>`;el.appendChild(div);});}
+
 async function loadAll(){
   const btn=document.getElementById('btn-r'),btnF=document.getElementById('btn-f');
   btn.classList.add('loading');btn.disabled=true;if(btnF)btnF.disabled=true;
