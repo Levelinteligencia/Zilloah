@@ -272,9 +272,28 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 </div>
 <div class="tc" id="tab-estoque">
+  <!-- TAGS DE FAIXA CLICÁVEIS -->
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="faixa-tag" onclick="setFaixaEstoque('morto')" id="ftag-morto" style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;cursor:pointer;border:2px solid #f85149;background:rgba(248,81,73,.08);color:#f85149;font-size:12px;font-weight:600">
+      <span style="width:10px;height:10px;border-radius:50%;background:#f85149;display:inline-block"></span>+365d &nbsp;Vender a custo
+    </div>
+    <div class="faixa-tag" onclick="setFaixaEstoque('365_180')" id="ftag-365_180" style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;cursor:pointer;border:2px solid #ff8c00;background:rgba(255,140,0,.08);color:#ff8c00;font-size:12px;font-weight:600">
+      <span style="width:10px;height:10px;border-radius:50%;background:#ff8c00;display:inline-block"></span>181–365d &nbsp;40% OFF urgente
+    </div>
+    <div class="faixa-tag" onclick="setFaixaEstoque('180_90')" id="ftag-180_90" style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;cursor:pointer;border:2px solid #1d9e75;background:rgba(29,158,117,.08);color:#1d9e75;font-size:12px;font-weight:600">
+      <span style="width:10px;height:10px;border-radius:50%;background:#1d9e75;display:inline-block"></span>91–180d &nbsp;20% OFF + vitrine
+    </div>
+    <div class="faixa-tag" onclick="setFaixaEstoque('90_0')" id="ftag-90_0" style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;cursor:pointer;border:2px solid #58a6ff;background:rgba(88,166,255,.08);color:#58a6ff;font-size:12px;font-weight:600">
+      <span style="width:10px;height:10px;border-radius:50%;background:#58a6ff;display:inline-block"></span>0–90d &nbsp;Monitorar
+    </div>
+    <div class="faixa-tag" onclick="setFaixaEstoque('todos')" id="ftag-todos" style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;cursor:pointer;border:2px solid var(--border2);background:rgba(255,255,255,.05);color:var(--text2);font-size:12px;font-weight:600">
+      Todos
+    </div>
+  </div>
+
   <!-- FILTROS -->
   <div class="fbar" style="margin-bottom:20px">
-    <div class="fg"><div class="fl">Buscar</div><input type="text" class="fi" id="e-busca" placeholder="nome ou ref..." style="width:200px" oninput="renderEstoque()"></div>
+    <div class="fg"><div class="fl">Buscar ref./nome/cód.</div><input type="text" class="fi" id="e-busca" placeholder="ex: 6528458... ou AL00005..." style="width:240px" oninput="renderEstoque()"></div>
     <div class="fg"><div class="fl">Categoria</div>
       <select class="fs" id="e-cat" style="width:160px" onchange="renderEstoque()">
         <option value="">Todas</option>
@@ -293,21 +312,21 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
         <option value="30909">Tornozeleira</option>
       </select>
     </div>
-    <div class="fg"><div class="fl">Ordenar por</div>
+    <div class="fg"><div class="fl">Situação</div>
+      <select class="fs" id="e-filtro" style="width:180px" onchange="renderEstoque()">
+        <option value="todos">Todas</option>
+        <option value="morto">Morto +365d</option>
+        <option value="365_180">181–365d (40% OFF)</option>
+        <option value="180_90">91–180d (20% OFF)</option>
+        <option value="90_0">0–90d (Monitorar)</option>
+      </select>
+    </div>
+    <div class="fg"><div class="fl">Ordenar</div>
       <select class="fs" id="e-ord" style="width:180px" onchange="renderEstoque()">
         <option value="capital">Capital imobilizado</option>
         <option value="dias">Dias parado</option>
         <option value="estoque">Estoque atual</option>
         <option value="nome">Nome</option>
-      </select>
-    </div>
-    <div class="fg"><div class="fl">Mostrar</div>
-      <select class="fs" id="e-filtro" style="width:180px" onchange="renderEstoque()">
-        <option value="todos">Todos os parados</option>
-        <option value="morto">Morto +365d</option>
-        <option value="365_180">181–365d (40% OFF)</option>
-        <option value="180_90">91–180d (20% OFF)</option>
-        <option value="90_0">0–90d (Monitorar)</option>
       </select>
     </div>
   </div>
@@ -316,8 +335,8 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
   <div class="cards" id="e-cards">
     <div class="card"><div class="cl">Itens parados</div><div class="cv" id="e-c1"><div class="skel" style="width:60%"></div></div><div class="cs" id="e-c1s">estoque > 0</div></div>
     <div class="card"><div class="cl">Capital imobilizado</div><div class="cv" id="e-c2" style="color:var(--gold)"><div class="skel" style="width:80%"></div></div><div class="cs" id="e-c2s">total parado</div></div>
-    <div class="card"><div class="cl">Estoque morto +365d</div><div class="cv" id="e-c3" style="color:var(--red)"><div class="skel" style="width:40%"></div></div><div class="cs" id="e-c3s">itens vender a custo</div></div>
-    <div class="card"><div class="cl">Recuperável</div><div class="cv" id="e-c4" style="color:var(--teal2)"><div class="skel" style="width:50%"></div></div><div class="cs" id="e-c4s">com ações</div></div>
+    <div class="card"><div class="cl">Morto +365d</div><div class="cv" id="e-c3" style="color:var(--red)"><div class="skel" style="width:40%"></div></div><div class="cs" id="e-c3s">vender a custo</div></div>
+    <div class="card"><div class="cl">Recuperável (60% desc.)</div><div class="cv" id="e-c4" style="color:var(--teal2)"><div class="skel" style="width:50%"></div></div><div class="cs" id="e-c4s">com desconto agressivo</div></div>
   </div>
 
   <!-- TABELA -->
@@ -327,14 +346,22 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
       <span class="tag-rt"><span class="dot" style="width:5px;height:5px"></span>dados reais</span>
     </div>
     <div style="overflow-x:auto">
-      <table class="vt" style="min-width:1000px">
+      <table class="vt" style="min-width:1100px">
         <thead><tr>
-          <th style="width:36px">#</th><th style="width:52px">Foto</th>
-          <th style="min-width:200px">Produto</th><th>Categoria</th>
-          <th style="text-align:center">Estoque</th><th style="text-align:center">Dias parado</th>
-          <th style="text-align:right">Capital R$</th><th style="text-align:center">Ação</th>
+          <th style="width:36px">#</th>
+          <th style="width:52px">FOTO</th>
+          <th style="min-width:100px">CÓD. BARRAS</th>
+          <th style="width:90px">REF.</th>
+          <th style="min-width:200px">DESCRIÇÃO</th>
+          <th>CATEGORIA</th>
+          <th style="text-align:center">ESTOQUE</th>
+          <th style="text-align:right">VAREJO</th>
+          <th style="text-align:right">CUSTO</th>
+          <th style="text-align:right">CAPITAL</th>
+          <th style="text-align:center">DIAS</th>
+          <th style="text-align:center">AÇÃO</th>
         </tr></thead>
-        <tbody id="tbody-estoque"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">Carregando...</td></tr></tbody>
+        <tbody id="tbody-estoque"><tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text3)">Carregando...</td></tr></tbody>
       </table>
     </div>
     <div style="padding:10px 0;font-size:11px;color:var(--text3)" id="e-pag"></div>
@@ -643,7 +670,7 @@ function goTab(id){
   if(!TB[id]){if(id==='produtos'){TB['produtos_loaded']=false;bProd();}if(id==='estoque')bEst();if(id==='clientes')bCli();if(id==='projecao')bProj();if(id==='recuperacao')bRec();TB[id]=true;}
 }
 
-function bEst(){DC('est');const it=[{n:'Colar Prata Vintage Pérola/Cristal',d:598,v:2890,u:1},{n:'Anel Folheado Ouro Zircônia',d:592,v:1043,u:7},{n:'Anel Prata Lisa Ferradura',d:667,v:837,u:3},{n:'Pulseira Prata Bali Pikun 4 Fileiras',d:666,v:799,u:2},{n:'Colar Prata Costela de Adão',d:598,v:687,u:3},{n:'Tornozeleira Prata Bolinhas',d:545,v:612,u:4},{n:'Brinco Argola Grande Dourado',d:520,v:498,u:6},{n:'Pulseira Folheada Ouro Berloques',d:487,v:445,u:5},{n:'Anel Ajustável Flor Prata',d:470,v:398,u:8},{n:'Colar Choker Prata Bolinhas',d:455,v:376,u:4},{n:'Brinco Pérola Dourado',d:432,v:342,u:6},{n:'Pulseira Elástica Pedras',d:410,v:298,u:9}];const el=document.getElementById('est-list');el.innerHTML='';it.forEach(i=>{const div=document.createElement('div');div.className='er';div.innerHTML=`<div class="en" title="${i.n}">${i.n} <span style="color:var(--text3);font-size:10px">${i.u}un</span></div><div class="ed">${i.d}d</div><div class="ev">${K(i.v)}</div>`;el.appendChild(div);});CH['est']=new Chart(document.getElementById('ch-est'),{type:'bar',data:{labels:['365–450d','451–550d','551–650d','+650d'],datasets:[{data:[8420,9380,6510,4198],backgroundColor:['rgba(248,81,73,.08)','rgba(248,81,73,.15)','rgba(248,81,73,.22)','rgba(248,81,73,.35)'],borderColor:['rgba(248,81,73,.4)','rgba(248,81,73,.5)','rgba(248,81,73,.7)','#f85149'],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,color:'#8b949e',font:{size:10},anchor:'end',align:'top',formatter:K,offset:2},tooltip:{callbacks:{label:c=>R(c.raw)+' parado'}}},scales:{x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});}
+// bEst hardcoded removido — usando versão real com API abaixo
 function bCli(){DC('cli');const f=[{n:'Victoria Carolina',c:11,fat:5056,tk:460,tel:false},{n:'Janice Cabral',c:7,fat:2898,tk:414,tel:true},{n:'NIna',c:6,fat:2380,tk:397,tel:true},{n:'claudia',c:3,fat:2244,tk:748,tel:true},{n:'Tamara (mundo)',c:11,fat:1983,tk:180,tel:false},{n:'CRIS',c:7,fat:1434,tk:205,tel:true},{n:'Camila Oliveira',c:5,fat:1170,tk:234,tel:false},{n:'Paloma - Mundo',c:6,fat:1037,tk:173,tel:false},{n:'Vitória',c:5,fat:1034,tk:207,tel:false},{n:'maria helena',c:7,fat:712,tk:102,tel:false}];const el=document.getElementById('cli-list');el.innerHTML='';f.forEach((c,i)=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n} ${c.tel?'<span style="font-size:10px;color:var(--teal2);background:rgba(29,158,117,.1);padding:1px 6px;border-radius:10px">tem tel</span>':''}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.c} compras · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">#${i+1}</div></div>`;el.appendChild(div);});CH['cli']=new Chart(document.getElementById('ch-cli'),{type:'doughnut',data:{labels:['Com nome + tel','Só nome','Anônimos (?)'],datasets:[{data:[22,18,60],backgroundColor:['#1d9e75','#c9a84c','rgba(248,81,73,.5)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+'%'}},datalabels:{display:false}}}});}
 function bProj(){DC('proj');const m=['Mai','Jun','Jul','Ago','Set','Out'],b=[90000,88000,92000,95000,98000,100000],o=[100000,105000,112000,118000,122000,128000];CH['proj']=new Chart(document.getElementById('ch-proj'),{type:'line',data:{labels:m,datasets:[{label:'Cenário base',data:b,borderColor:'rgba(255,255,255,.3)',borderDash:[5,4],borderWidth:2,pointRadius:3,fill:false,tension:.3,datalabels:{display:false}},{label:'Com upsell',data:o,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.05)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#c9a84c',fill:true,tension:.3,datalabels:{display:true,color:'#c9a84c',font:{size:9},anchor:'end',align:'top',formatter:K,offset:2}}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}},datalabels:{display:false}},scales:{x:{ticks:{color:'#6e7681',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#6e7681',font:{size:10},callback:K},grid:{color:'rgba(255,255,255,.04)'}}}}});}
 function bRec(){const r=[{n:'Janice Cabral',tel:'(11)97187-3863',ult:'Nov/2025',fat:2898,tk:414},{n:'NIna',tel:'(11)95556-3210',ult:'Out/2025',fat:2380,tk:397},{n:'claudia',tel:'(11)99913-6386',ult:'Dez/2025',fat:2244,tk:748},{n:'CRIS',tel:'(11)98765-4321',ult:'Jan/2026',fat:1434,tk:205},{n:'maria helena',tel:'(11)91234-5678',ult:'Fev/2026',fat:712,tk:102}];const el=document.getElementById('rec-list');el.innerHTML='';r.forEach(c=>{const div=document.createElement('div');div.className='cr';div.innerHTML=`<div><div style="font-size:13px;color:var(--text)">${c.n}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.tel} · última: ${c.ult} · ticket R$ ${c.tk}</div></div><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;font-weight:500">${R(c.fat)}</div><div style="font-size:11px;color:var(--teal2)">histórico</div></div>`;el.appendChild(div);});}
@@ -921,23 +948,38 @@ function renderProd() {
 let estoqueData = [];
 let clientesData = [];
 
+// ════════════════════════════════════════
+// ABA ESTOQUE PARADO — versão completa
+// ════════════════════════════════════════
+
+function setFaixaEstoque(faixa) {
+  // Atualizar select
+  const sel = document.getElementById('e-filtro');
+  if (sel) sel.value = faixa;
+  // Destacar tag ativa
+  ['morto','365_180','180_90','90_0','todos'].forEach(f => {
+    const el = document.getElementById('ftag-' + f);
+    if (!el) return;
+    el.style.opacity = f === faixa ? '1' : '0.45';
+    el.style.transform = f === faixa ? 'scale(1.05)' : 'scale(1)';
+  });
+  renderEstoque();
+}
+
 async function bEst() {
   if (TB['estoque_loaded']) { renderEstoque(); return; }
-  
   document.getElementById('e-sub').textContent = 'Buscando produtos parados...';
-  
   try {
     const produtos = await fetchProdutos();
-    const todas = allVendas || [];
-    
-    // Calcular dias parado para cada produto
     estoqueData = produtos
-      .filter(p => p.quantidade > 0) // Só com estoque
+      .filter(p => (p.quantidade || 0) > 0)
       .map(p => {
-        const diasParado = p.data_ultima_venda 
+        const diasParado = p.data_ultima_venda
           ? Math.floor((new Date() - new Date(p.data_ultima_venda)) / 86400000)
-          : 9999; // Nunca vendeu
-        
+          : 9999;
+        const custo = p.custo_total || 0;
+        const preco = p.tipo_preco?.[0]?.preco || 0;
+        const qtd = p.quantidade || 0;
         return {
           id: p.id,
           ref: p.referencia || '—',
@@ -946,16 +988,15 @@ async function bEst() {
           img: p.imagem || '',
           cat_id: p.fk_categoria_id,
           cat: CATS_MAP[p.fk_categoria_id] || '—',
-          estoque: p.quantidade || 0,
-          custo: p.custo_total || 0,
-          capital: (p.custo_total || 0) * (p.quantidade || 0),
+          estoque: qtd,
+          preco,
+          custo,
+          capital: custo * qtd,
           diasParado
         };
       });
-    
     TB['estoque_loaded'] = true;
     renderEstoque();
-    
   } catch(e) {
     document.getElementById('e-sub').textContent = `Erro: ${e.message}`;
   }
@@ -963,25 +1004,23 @@ async function bEst() {
 
 function renderEstoque() {
   if (!estoqueData.length) return;
-  
   const busca = (document.getElementById('e-busca')?.value||'').toLowerCase();
   const catFiltro = document.getElementById('e-cat')?.value || '';
   const ord = document.getElementById('e-ord')?.value || 'capital';
   const filtroEsp = document.getElementById('e-filtro')?.value || 'todos';
-  
+
   let dados = estoqueData.filter(p => {
-    if (busca && !p.nome.toLowerCase().includes(busca) && !p.ref.toLowerCase().includes(busca)) return false;
+    if (busca && !p.nome.toLowerCase().includes(busca) &&
+        !p.ref.toLowerCase().includes(busca) &&
+        !p.cod_barras.toLowerCase().includes(busca)) return false;
     if (catFiltro && String(p.cat_id) !== catFiltro) return false;
-    
     if (filtroEsp === 'morto' && p.diasParado < 365) return false;
     if (filtroEsp === '365_180' && (p.diasParado < 181 || p.diasParado > 365)) return false;
     if (filtroEsp === '180_90' && (p.diasParado < 91 || p.diasParado > 180)) return false;
     if (filtroEsp === '90_0' && (p.diasParado < 0 || p.diasParado > 90)) return false;
-    
     return true;
   });
-  
-  // Ordenar
+
   dados.sort((a,b) => {
     if (ord === 'capital') return b.capital - a.capital;
     if (ord === 'dias') return b.diasParado - a.diasParado;
@@ -989,69 +1028,82 @@ function renderEstoque() {
     if (ord === 'nome') return a.nome.localeCompare(b.nome);
     return 0;
   });
-  
-  // Cards
-  const parados = estoqueData.filter(p => p.diasParado >= 0);
-  const morto = parados.filter(p => p.diasParado >= 365);
-  const recuperavel = parados.filter(p => p.diasParado < 365);
-  const capital = parados.reduce((s,p) => s + p.capital, 0);
-  
-  document.getElementById('e-c1').textContent = N(parados.length);
-  document.getElementById('e-c2').textContent = K(capital);
-  document.getElementById('e-c3').textContent = N(morto.length);
-  document.getElementById('e-c4').textContent = N(recuperavel.length);
-  document.getElementById('e-sub').textContent = `${N(dados.length)} produtos · ordenado por ${ord} · dados reais`;
-  
-  // Tabela
+
+  // KPI Cards
+  const total = estoqueData.length;
+  const capitalTotal = estoqueData.reduce((s,p) => s + p.capital, 0);
+  const morto = estoqueData.filter(p => p.diasParado >= 365).length;
+  const recuperavel = estoqueData.filter(p => p.diasParado >= 91 && p.diasParado < 365).length;
+
+  document.getElementById('e-c1').textContent = N(total);
+  document.getElementById('e-c1s').textContent = `${N(dados.length)} filtrados`;
+  document.getElementById('e-c2').textContent = K(capitalTotal);
+  document.getElementById('e-c2s').textContent = 'total imobilizado';
+  document.getElementById('e-c3').textContent = N(morto);
+  document.getElementById('e-c3s').textContent = 'vender a custo';
+  document.getElementById('e-c4').textContent = N(recuperavel);
+  document.getElementById('e-c4s').textContent = '91–365d com desconto';
+  document.getElementById('e-sub').textContent = `${N(dados.length)} itens · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados · dados reais`;
+
   const tb = document.getElementById('tbody-estoque');
   tb.innerHTML = '';
-  
+
   if (!dados.length) {
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">Nenhum produto encontrado</td></tr>';
+    tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text3)">Nenhum produto encontrado com esses filtros</td></tr>';
+    document.getElementById('e-pag').textContent = '';
     return;
   }
-  
-  dados.slice(0, 100).forEach((p, i) => {
+
+  dados.slice(0, 200).forEach((p, i) => {
     const tr = document.createElement('tr');
-    
-    // Ação com cores
-    let acaoHtml = '—';
-    let acaoCor = 'var(--text3)';
+
+    // Ação e cores por faixa de dias
+    let acaoHtml, acaoCor, diasCor;
     if (p.diasParado >= 365) {
-      acaoHtml = 'Vender a custo';
-      acaoCor = 'var(--red)';
+      acaoHtml = 'Vender a custo'; acaoCor = '#f85149'; diasCor = '#f85149';
     } else if (p.diasParado >= 181) {
-      acaoHtml = '40% OFF urgente';
-      acaoCor = '#ff6b35';
+      acaoHtml = '40% OFF urgente'; acaoCor = '#ff8c00'; diasCor = '#ff8c00';
     } else if (p.diasParado >= 91) {
-      acaoHtml = '20% OFF + vitrine';
-      acaoCor = 'var(--gold)';
-    } else if (p.diasParado >= 0) {
-      acaoHtml = 'Monitorar';
-      acaoCor = 'var(--teal2)';
+      acaoHtml = '20% OFF + vitrine'; acaoCor = '#1d9e75'; diasCor = '#1d9e75';
+    } else {
+      acaoHtml = 'Monitorar'; acaoCor = '#58a6ff'; diasCor = '#58a6ff';
     }
-    
-    const imgHtml = p.img 
-      ? `<img src="${p.img}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border2)" onerror="this.style.display='none'">`
-      : `<div style="width:36px;height:36px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px">💎</div>`;
-    
+
+    // Cor borda do botão ação
+    const acaoBg = p.diasParado >= 365
+      ? 'rgba(248,81,73,.12)' : p.diasParado >= 181
+      ? 'rgba(255,140,0,.1)' : p.diasParado >= 91
+      ? 'rgba(29,158,117,.1)' : 'rgba(88,166,255,.1)';
+
+    const imgHtml = p.img
+      ? `<img src="${p.img}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border2)" onerror="this.style.display='none'">`
+      : `<div style="width:40px;height:40px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px">💎</div>`;
+
+    const diasTxt = p.diasParado === 9999 ? '∞' : p.diasParado + 'd';
+
     tr.innerHTML = `
-      <td class="th" style="color:var(--gold)">${i+1}</td>
+      <td class="th" style="color:var(--text3)">${i+1}</td>
       <td style="padding:6px 8px">${imgHtml}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#58a6ff;cursor:pointer" title="Cód. barras">${p.cod_barras !== '—' ? p.cod_barras : '<span style="color:var(--text3)">—</span>'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">${p.ref}</td>
       <td style="max-width:220px">
         <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.nome}">${p.nome}</div>
-        <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">${p.ref} · ${p.cod_barras !== '—' ? p.cod_barras : 'sem'}</div>
       </td>
-      <td><span style="background:var(--bg3);border:1px solid var(--border2);padding:1px 7px;border-radius:10px;font-size:10px;color:var(--text3)">${p.cat}</span></td>
-      <td style="text-align:center;font-weight:600;color:${p.estoque === 0 ? 'var(--red)' : 'var(--text2)'}">${p.estoque}</td>
-      <td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--text3)">${p.diasParado === 9999 ? '∞' : p.diasParado + 'd'}</td>
-      <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--gold)">${K(p.capital)}</td>
-      <td style="text-align:center"><span style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:8px;font-size:10px;color:${acaoCor};font-weight:600">${acaoHtml}</span></td>
+      <td><span style="background:var(--bg3);border:1px solid var(--border2);padding:1px 7px;border-radius:10px;font-size:10px;color:var(--text3);white-space:nowrap">${p.cat}</span></td>
+      <td style="text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text)">${p.estoque} un.</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text2)">${p.preco > 0 ? R(p.preco) : '—'}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:600">${p.custo > 0 ? R(p.custo) : '—'}</td>
+      <td style="text-align:right;font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700">${p.capital > 0 ? R(p.capital) : '—'}</td>
+      <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:${diasCor}">${diasTxt}</td>
+      <td style="text-align:center">
+        <span style="background:${acaoBg};border:1px solid ${acaoCor}55;padding:3px 10px;border-radius:8px;font-size:10px;color:${acaoCor};font-weight:700;white-space:nowrap">${acaoHtml}</span>
+      </td>
     `;
     tb.appendChild(tr);
   });
-  
-  document.getElementById('e-pag').textContent = dados.length > 100 ? `Mostrando 100 de ${N(dados.length)}` : `${N(dados.length)} produtos`;
+
+  document.getElementById('e-pag').textContent =
+    dados.length > 200 ? `Mostrando 200 de ${N(dados.length)} produtos · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados` : `${N(dados.length)} produtos · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados`;
 }
 
 
