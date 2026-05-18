@@ -978,55 +978,69 @@ function setFaixaEstoque(faixa) {
 
 async function bEst() {
   if (TB['estoque_loaded']) { renderEstoque(); return; }
-  document.getElementById('e-sub').textContent = 'Carregando produtos e cruzando com vendas...';
+  document.getElementById('e-sub').textContent = 'Carregando produtos...';
   try {
-    // Garantir que as vendas estão carregadas (usamos as mesmas do movimento)
-    const vendas = allVendas || await fetchAll();
     const produtos = await fetchProdutos();
 
-    // Buscar detalhes das vendas para mapear produto_id -> última data de venda
-    // Estratégia: usar os itens dos detalhes de venda já carregados
-    // OU cruzar via fetchVendasDetalhes com todas as vendas
-    document.getElementById('e-sub').textContent = `Analisando ${vendas.length} vendas para calcular dias parado...`;
+    // Buscar 12 meses de vendas para ter histórico completo de movimentação
+    document.getElementById('e-sub').textContent = 'Buscando histórico de 12 meses de vendas...';
+    const hoje = new Date();
+    const umAnoAtras = new Date(hoje); umAnoAtras.setFullYear(hoje.getFullYear() - 1);
+    const dDe = umAnoAtras.toISOString().split('T')[0];
+    const dAte = hoje.toISOString().split('T')[0];
 
-    // Buscar detalhes de TODAS as vendas para mapear produto_id -> ultima_venda
-    const ultimaVendaPorProd = {}; // prodId -> Date
-    const ids = vendas.map(v => v.id);
-    const LOTE = 30;
+    // Buscar todas as vendas do último ano via proxy
+    let vendasAno = [];
+    let pagina = 1;
+    while (true) {
+      const r = await fetch(`${PROXY}?per_page=500&page=${pagina}&data_inicio=${dDe}&data_fim=${dAte}`)
+        .then(r => r.json()).catch(() => null);
+      if (!r?.data?.length) break;
+      vendasAno.push(...r.data);
+      if (pagina >= (r.last_page || 1)) break;
+      pagina++;
+    }
+
+    document.getElementById('e-sub').textContent = `${vendasAno.length} vendas encontradas. Analisando itens...`;
+
+    // Mapear produto_id -> última data de venda buscando detalhes em lotes
+    const ultimaVendaPorProd = {};
+    const ids = vendasAno.map(v => v.id);
+    const LOTE = 40;
     let processados = 0;
+
     for (let i = 0; i < ids.length; i += LOTE) {
       const lote = ids.slice(i, i + LOTE);
       const resultados = await Promise.all(
-        lote.map(id =>
+        lote.map((id, li) =>
           fetch(`${PROXY}/venda/${id}`)
             .then(r => r.json())
+            .then(venda => ({ venda, dataVenda: new Date(vendasAno[i + li]?.data_criacao) }))
             .catch(() => null)
         )
       );
-      resultados.forEach((venda, li) => {
-        if (!venda?.itens) return;
-        const dataVenda = new Date(venda.data_criacao || vendas[i + li]?.data_criacao);
-        venda.itens.forEach(item => {
+      resultados.forEach(res => {
+        if (!res?.venda?.itens) return;
+        res.venda.itens.forEach(item => {
           const pid = item.produto?.id || item.produto_id;
           if (!pid) return;
-          if (!ultimaVendaPorProd[pid] || dataVenda > ultimaVendaPorProd[pid]) {
-            ultimaVendaPorProd[pid] = dataVenda;
+          if (!ultimaVendaPorProd[pid] || res.dataVenda > ultimaVendaPorProd[pid]) {
+            ultimaVendaPorProd[pid] = res.dataVenda;
           }
         });
       });
       processados += lote.length;
       document.getElementById('e-sub').textContent =
-        `Analisando vendas... ${processados} de ${ids.length} processadas`;
+        `Mapeando histórico... ${processados} de ${ids.length} vendas analisadas`;
     }
 
-    const hoje = new Date();
     estoqueData = produtos
       .filter(p => (p.quantidade || 0) > 0)
       .map(p => {
         const ultimaVenda = ultimaVendaPorProd[p.id];
         const diasParado = ultimaVenda
           ? Math.floor((hoje - ultimaVenda) / 86400000)
-          : Math.floor((hoje - new Date(p.data_criacao)) / 86400000); // usa data de cadastro se nunca vendeu
+          : Math.floor((hoje - new Date(p.data_criacao)) / 86400000);
         const custo = p.custo_total || 0;
         const preco = p.tipo_preco?.[0]?.preco || 0;
         const qtd = p.quantidade || 0;
