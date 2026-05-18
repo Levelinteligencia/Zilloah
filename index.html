@@ -692,20 +692,19 @@ let allProdData = []; // dados finais para renderizar
 // Buscar todos os produtos da API
 async function fetchProdutos() {
   if (prodCache && prodCacheTs && Date.now() - prodCacheTs < 10*60*1000) return prodCache;
-  
-  const prim = await fetch(`${JUERI_API}/produto?per_page=500&page=1`, {headers:JH}).then(r=>r.json());
+  // Usar o PROXY Cloudflare com path=produto para evitar CORS
+  const PROXY_PROD = PROXY + '/produto';
+  const prim = await fetch(`${PROXY_PROD}?per_page=500&page=1`).then(r=>r.json());
   const totalPags = prim.last_page || 1;
   let todos = [...(prim.data||[])];
-  
   if (totalPags > 1) {
     const resto = await Promise.all(
       Array.from({length:totalPags-1}, (_,i) => 
-        fetch(`${JUERI_API}/produto?per_page=500&page=${i+2}`, {headers:JH}).then(r=>r.json())
+        fetch(`${PROXY_PROD}?per_page=500&page=${i+2}`).then(r=>r.json())
       )
     );
     resto.forEach(r => todos.push(...(r.data||[])));
   }
-  
   prodCache = todos;
   prodCacheTs = Date.now();
   return todos;
@@ -725,7 +724,7 @@ async function fetchVendasDetalhes(vendasPeriodo) {
     const lote = ids.slice(i, i + LOTE);
     const resultados = await Promise.all(
       lote.map(id => 
-        fetch(`${JUERI_API}/venda/${id}`, {headers:JH})
+        fetch(`${PROXY}/venda/${id}`)
           .then(r=>r.json())
           .catch(()=>null)
       )
