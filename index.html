@@ -968,15 +968,55 @@ function setFaixaEstoque(faixa) {
 
 async function bEst() {
   if (TB['estoque_loaded']) { renderEstoque(); return; }
-  document.getElementById('e-sub').textContent = 'Buscando produtos parados...';
+  document.getElementById('e-sub').textContent = 'Carregando produtos e cruzando com vendas...';
   try {
+    // Garantir que as vendas estão carregadas (usamos as mesmas do movimento)
+    const vendas = allVendas || await fetchAll();
     const produtos = await fetchProdutos();
+
+    // Buscar detalhes das vendas para mapear produto_id -> última data de venda
+    // Estratégia: usar os itens dos detalhes de venda já carregados
+    // OU cruzar via fetchVendasDetalhes com todas as vendas
+    document.getElementById('e-sub').textContent = `Analisando ${vendas.length} vendas para calcular dias parado...`;
+
+    // Buscar detalhes de TODAS as vendas para mapear produto_id -> ultima_venda
+    const ultimaVendaPorProd = {}; // prodId -> Date
+    const ids = vendas.map(v => v.id);
+    const LOTE = 30;
+    let processados = 0;
+    for (let i = 0; i < ids.length; i += LOTE) {
+      const lote = ids.slice(i, i + LOTE);
+      const resultados = await Promise.all(
+        lote.map(id =>
+          fetch(`${PROXY}/venda/${id}`)
+            .then(r => r.json())
+            .catch(() => null)
+        )
+      );
+      resultados.forEach((venda, li) => {
+        if (!venda?.itens) return;
+        const dataVenda = new Date(venda.data_criacao || vendas[i + li]?.data_criacao);
+        venda.itens.forEach(item => {
+          const pid = item.produto?.id || item.produto_id;
+          if (!pid) return;
+          if (!ultimaVendaPorProd[pid] || dataVenda > ultimaVendaPorProd[pid]) {
+            ultimaVendaPorProd[pid] = dataVenda;
+          }
+        });
+      });
+      processados += lote.length;
+      document.getElementById('e-sub').textContent =
+        `Analisando vendas... ${processados} de ${ids.length} processadas`;
+    }
+
+    const hoje = new Date();
     estoqueData = produtos
       .filter(p => (p.quantidade || 0) > 0)
       .map(p => {
-        const diasParado = p.data_ultima_venda
-          ? Math.floor((new Date() - new Date(p.data_ultima_venda)) / 86400000)
-          : 9999;
+        const ultimaVenda = ultimaVendaPorProd[p.id];
+        const diasParado = ultimaVenda
+          ? Math.floor((hoje - ultimaVenda) / 86400000)
+          : Math.floor((hoje - new Date(p.data_criacao)) / 86400000); // usa data de cadastro se nunca vendeu
         const custo = p.custo_total || 0;
         const preco = p.tipo_preco?.[0]?.preco || 0;
         const qtd = p.quantidade || 0;
@@ -992,13 +1032,15 @@ async function bEst() {
           preco,
           custo,
           capital: custo * qtd,
-          diasParado
+          diasParado,
+          nunca_vendeu: !ultimaVenda
         };
       });
     TB['estoque_loaded'] = true;
     renderEstoque();
   } catch(e) {
     document.getElementById('e-sub').textContent = `Erro: ${e.message}`;
+    console.error('bEst erro:', e);
   }
 }
 
@@ -1079,7 +1121,7 @@ function renderEstoque() {
       ? `<img src="${p.img}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border2)" onerror="this.style.display='none'">`
       : `<div style="width:40px;height:40px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px">💎</div>`;
 
-    const diasTxt = p.diasParado === 9999 ? '∞' : p.diasParado + 'd';
+    const diasTxt = p.nunca_vendeu ? `${p.diasParado}d*` : p.diasParado + 'd';
 
     tr.innerHTML = `
       <td class="th" style="color:var(--text3)">${i+1}</td>
@@ -1102,8 +1144,11 @@ function renderEstoque() {
     tb.appendChild(tr);
   });
 
+  const nuncaVendeu = dados.filter(p => p.nunca_vendeu).length;
   document.getElementById('e-pag').textContent =
-    dados.length > 200 ? `Mostrando 200 de ${N(dados.length)} produtos · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados` : `${N(dados.length)} produtos · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados`;
+    (dados.length > 200 ? `Mostrando 200 de ${N(dados.length)} produtos` : `${N(dados.length)} produtos`)
+    + ` · R$ ${N(dados.reduce((s,p)=>s+p.capital,0))} imobilizados`
+    + (nuncaVendeu > 0 ? ` · *${N(nuncaVendeu)} nunca venderam (dias desde cadastro)` : '');
 }
 
 
