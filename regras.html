@@ -28,7 +28,6 @@
     padding: 0 0 48px;
   }
 
-  /* HERO */
   .hero {
     background: var(--verde-fundo);
     border-bottom: 1px solid rgba(3,187,133,0.15);
@@ -37,68 +36,39 @@
   }
   .hero-titulo-bloco { margin-bottom: 10px; }
   .hero-titulo {
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--verde);
+    font-size: 36px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--verde);
   }
-  .hero-club {
-    font-size: 36px;
-    font-weight: 300;
-    letter-spacing: 0.14em;
-    color: #ccc;
-  }
+  .hero-club { font-size: 36px; font-weight: 300; letter-spacing: 0.14em; color: #ccc; }
   .hero-programa {
-    font-size: 13px;
-    color: var(--apagado);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 8px;
+    font-size: 13px; color: var(--apagado);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-top: 8px;
   }
   .hero-loja {
-    font-size: 13px;
-    color: var(--verde);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-top: 4px;
+    font-size: 13px; color: var(--verde);
+    letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px;
   }
   .hero-sub {
-    font-size: 16px;
-    color: var(--apagado);
-    margin-top: 20px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.6;
+    font-size: 16px; color: var(--apagado); margin-top: 20px;
+    max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;
   }
   .hero-sub strong { color: var(--verde); }
 
-  /* SEÇÕES */
   .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
   .secao { margin-top: 48px; }
   .secao-titulo {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--verde);
-    margin-bottom: 16px;
-    padding-bottom: 10px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--verde);
+    margin-bottom: 16px; padding-bottom: 10px;
     border-bottom: 1px solid rgba(3,187,133,0.2);
   }
 
-  /* TIERS */
   .tiers { display: flex; flex-direction: column; gap: 12px; }
   .tier-card {
-    background: var(--cinza-e);
-    border: 1px solid var(--cinza-b);
-    border-radius: 14px;
-    padding: 20px 22px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 16px;
+    background: var(--cinza-e); border: 1px solid var(--cinza-b);
+    border-radius: 14px; padding: 20px 22px;
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 16px;
   }
   .tier-card.bronze { border-color: rgba(205,127,50,0.3); }
   .tier-card.prata  { border-color: rgba(168,169,173,0.3); }
@@ -121,72 +91,57 @@
     letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;
   }
 
-  /* LASER */
   .laser-box {
-    background: var(--cinza-e);
-    border: 1px solid rgba(3,187,133,0.25);
-    border-radius: 14px;
-    padding: 24px;
+    background: var(--cinza-e); border: 1px solid rgba(3,187,133,0.25);
+    border-radius: 14px; padding: 24px;
   }
   .laser-slogan { font-size: 18px; font-weight: 700; color: var(--verde); margin-bottom: 10px; font-style: italic; }
   .laser-desc { font-size: 14px; color: var(--apagado); line-height: 1.7; }
   .laser-desc strong { color: var(--branco); }
   .laser-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .laser-tag {
-    background: rgba(3,187,133,0.1);
-    border: 1px solid rgba(3,187,133,0.25);
-    border-radius: 100px;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--verde);
+    background: rgba(3,187,133,0.1); border: 1px solid rgba(3,187,133,0.25);
+    border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--verde);
   }
 
-  /* CASHBACK INFO */
   .info-cards { display: flex; flex-direction: column; gap: 10px; }
   .info-card {
-    background: var(--cinza-e);
-    border: 1px solid var(--cinza-b);
-    border-radius: 12px;
-    padding: 16px 18px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
+    background: var(--cinza-e); border: 1px solid var(--cinza-b);
+    border-radius: 12px; padding: 16px 18px;
+    display: flex; gap: 14px; align-items: flex-start;
   }
   .info-icone { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
   .info-titulo { font-size: 13px; font-weight: 600; color: var(--branco); margin-bottom: 4px; }
   .info-desc { font-size: 13px; color: var(--apagado); line-height: 1.6; }
   .info-desc strong { color: var(--verde); }
 
-  /* PASSOS */
   .passos { display: flex; flex-direction: column; gap: 10px; }
   .passo { display: flex; gap: 14px; align-items: flex-start; }
   .passo-num {
     width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(3,187,133,0.12);
-    border: 1px solid rgba(3,187,133,0.3);
+    background: rgba(3,187,133,0.12); border: 1px solid rgba(3,187,133,0.3);
     color: var(--verde); font-size: 13px; font-weight: 700;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .passo-texto { font-size: 14px; color: var(--apagado); line-height: 1.6; padding-top: 5px; }
   .passo-texto strong { color: var(--branco); }
 
-  /* CTA */
+  /* CTA SEM BOTÃO DE CHECK-IN — incentiva visita presencial */
   .cta-box {
     margin-top: 48px; text-align: center;
     background: var(--verde-fundo);
     border: 1px solid rgba(3,187,133,0.2);
     border-radius: 16px; padding: 32px 24px;
   }
-  .cta-titulo { font-size: 20px; font-weight: 700; color: var(--verde); margin-bottom: 8px; }
-  .cta-sub { font-size: 14px; color: var(--apagado); margin-bottom: 20px; }
-  .btn-checkin {
-    display: inline-block; background: var(--verde); color: var(--preto);
-    font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; text-decoration: none;
-    border-radius: 10px; padding: 14px 32px;
+  .cta-titulo { font-size: 20px; font-weight: 700; color: var(--verde); margin-bottom: 10px; }
+  .cta-sub { font-size: 15px; color: var(--apagado); line-height: 1.7; }
+  .cta-sub strong { color: var(--branco); }
+  .cta-loja {
+    margin-top: 20px; font-size: 13px; color: var(--apagado);
+    letter-spacing: 0.06em;
   }
+  .cta-loja span { color: var(--verde); font-weight: 600; }
 
-  /* RESPONSIVO */
   @media (max-width: 480px) {
     .tier-card { grid-template-columns: auto 1fr; }
     .tier-cashback { grid-column: 2; text-align: left; }
@@ -210,7 +165,6 @@
 
 <div class="container">
 
-  <!-- TIERS -->
   <div class="secao">
     <div class="secao-titulo">Seus benefícios por nível</div>
     <div class="tiers">
@@ -260,7 +214,6 @@
     </div>
   </div>
 
-  <!-- LASER -->
   <div class="secao">
     <div class="secao-titulo">Gravação a laser — nosso diferencial</div>
     <div class="laser-box">
@@ -279,7 +232,6 @@
     </div>
   </div>
 
-  <!-- CASHBACK -->
   <div class="secao">
     <div class="secao-titulo">Sobre o seu cashback</div>
     <div class="info-cards">
@@ -307,13 +259,12 @@
     </div>
   </div>
 
-  <!-- COMO PARTICIPAR -->
   <div class="secao">
     <div class="secao-titulo">Como participar</div>
     <div class="passos">
       <div class="passo">
         <div class="passo-num">1</div>
-        <div class="passo-texto"><strong>Escaneie o QR Code</strong> no quiosque ou informe seu CPF para a vendedora.</div>
+        <div class="passo-texto"><strong>Visite o quiosque</strong> no Shopping São Caetano e peça para a vendedora cadastrar seu CPF.</div>
       </div>
       <div class="passo">
         <div class="passo-num">2</div>
@@ -330,11 +281,14 @@
     </div>
   </div>
 
-  <!-- CTA -->
+  <!-- CTA sem botão de check-in — versão para WhatsApp/divulgação -->
   <div class="cta-box">
-    <div class="cta-titulo">Pronto para começar?</div>
-    <div class="cta-sub">Registre sua visita agora e entre para o Zilloah Club.</div>
-    <a class="btn-checkin" href="checkin.html">Fazer Check-in</a>
+    <div class="cta-titulo">Venha nos visitar! 🛍️</div>
+    <div class="cta-sub">
+      O check-in é feito <strong>presencialmente no quiosque</strong>.<br>
+      Quanto mais você visita, mais você ganha.
+    </div>
+    <div class="cta-loja">Zilloah · <span>Shopping São Caetano</span></div>
   </div>
 
 </div>
