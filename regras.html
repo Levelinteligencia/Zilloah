@@ -35,6 +35,7 @@
     text-align: center;
     padding: 48px 24px 40px;
   }
+  .hero-titulo-bloco { margin-bottom: 10px; }
   .hero-titulo {
     font-size: 36px;
     font-weight: 800;
@@ -48,17 +49,24 @@
     letter-spacing: 0.14em;
     color: #ccc;
   }
+  .hero-programa {
+    font-size: 13px;
+    color: var(--apagado);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
   .hero-loja {
     font-size: 13px;
     color: var(--verde);
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-top: 6px;
+    margin-top: 4px;
   }
   .hero-sub {
     font-size: 16px;
     color: var(--apagado);
-    margin-top: 16px;
+    margin-top: 20px;
     max-width: 480px;
     margin-left: auto;
     margin-right: auto;
@@ -96,42 +104,21 @@
   .tier-card.prata  { border-color: rgba(168,169,173,0.3); }
   .tier-card.ouro   { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.04); }
   .tier-emoji { font-size: 32px; line-height: 1; }
-  .tier-info {}
-  .tier-nome {
-    font-size: 16px;
-    font-weight: 700;
-  }
+  .tier-nome { font-size: 16px; font-weight: 700; }
   .tier-bronze .tier-nome { color: var(--bronze); }
   .tier-prata  .tier-nome { color: var(--prata); }
   .tier-ouro   .tier-nome { color: var(--ouro); }
-  .tier-visitas {
-    font-size: 12px;
-    color: var(--apagado);
-    margin-top: 3px;
-  }
-  .tier-extras {
-    font-size: 11px;
-    color: var(--apagado);
-    margin-top: 6px;
-    line-height: 1.5;
-  }
+  .tier-visitas { font-size: 12px; color: var(--apagado); margin-top: 3px; }
+  .tier-extras { font-size: 11px; color: var(--apagado); margin-top: 6px; line-height: 1.5; }
   .tier-extras span { color: var(--verde); }
-  .tier-cashback {
-    text-align: right;
-  }
-  .cashback-num {
-    font-size: 28px;
-    font-weight: 800;
-  }
+  .tier-cashback { text-align: right; }
+  .cashback-num { font-size: 28px; font-weight: 800; }
   .tier-bronze .cashback-num { color: var(--bronze); }
   .tier-prata  .cashback-num { color: var(--prata); }
   .tier-ouro   .cashback-num { color: var(--ouro); }
   .cashback-label {
-    font-size: 10px;
-    color: var(--apagado);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 2px;
+    font-size: 10px; color: var(--apagado);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;
   }
 
   /* LASER */
@@ -141,25 +128,10 @@
     border-radius: 14px;
     padding: 24px;
   }
-  .laser-slogan {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--verde);
-    margin-bottom: 10px;
-    font-style: italic;
-  }
-  .laser-desc {
-    font-size: 14px;
-    color: var(--apagado);
-    line-height: 1.7;
-  }
+  .laser-slogan { font-size: 18px; font-weight: 700; color: var(--verde); margin-bottom: 10px; font-style: italic; }
+  .laser-desc { font-size: 14px; color: var(--apagado); line-height: 1.7; }
   .laser-desc strong { color: var(--branco); }
-  .laser-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-  }
+  .laser-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .laser-tag {
     background: rgba(3,187,133,0.1);
     border: 1px solid rgba(3,187,133,0.25);
@@ -180,84 +152,38 @@
     gap: 14px;
     align-items: flex-start;
   }
-  .info-icone {
-    font-size: 22px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .info-titulo {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--branco);
-    margin-bottom: 4px;
-  }
-  .info-desc {
-    font-size: 13px;
-    color: var(--apagado);
-    line-height: 1.6;
-  }
+  .info-icone { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .info-titulo { font-size: 13px; font-weight: 600; color: var(--branco); margin-bottom: 4px; }
+  .info-desc { font-size: 13px; color: var(--apagado); line-height: 1.6; }
   .info-desc strong { color: var(--verde); }
 
   /* PASSOS */
   .passos { display: flex; flex-direction: column; gap: 10px; }
-  .passo {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
+  .passo { display: flex; gap: 14px; align-items: flex-start; }
   .passo-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     background: rgba(3,187,133,0.12);
     border: 1px solid rgba(3,187,133,0.3);
-    color: var(--verde);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    color: var(--verde); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .passo-texto {
-    font-size: 14px;
-    color: var(--apagado);
-    line-height: 1.6;
-    padding-top: 5px;
-  }
+  .passo-texto { font-size: 14px; color: var(--apagado); line-height: 1.6; padding-top: 5px; }
   .passo-texto strong { color: var(--branco); }
 
   /* CTA */
   .cta-box {
-    margin-top: 48px;
-    text-align: center;
+    margin-top: 48px; text-align: center;
     background: var(--verde-fundo);
     border: 1px solid rgba(3,187,133,0.2);
-    border-radius: 16px;
-    padding: 32px 24px;
+    border-radius: 16px; padding: 32px 24px;
   }
-  .cta-titulo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--verde);
-    margin-bottom: 8px;
-  }
-  .cta-sub {
-    font-size: 14px;
-    color: var(--apagado);
-    margin-bottom: 20px;
-  }
+  .cta-titulo { font-size: 20px; font-weight: 700; color: var(--verde); margin-bottom: 8px; }
+  .cta-sub { font-size: 14px; color: var(--apagado); margin-bottom: 20px; }
   .btn-checkin {
-    display: inline-block;
-    background: var(--verde);
-    color: var(--preto);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 10px;
-    padding: 14px 32px;
+    display: inline-block; background: var(--verde); color: var(--preto);
+    font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    border-radius: 10px; padding: 14px 32px;
   }
 
   /* RESPONSIVO */
@@ -271,10 +197,10 @@
 <body>
 
 <div class="hero">
-  <div>
-    <span class="hero-titulo">ZILLOAH</span>
-    <span class="hero-club"> Club</span>
+  <div class="hero-titulo-bloco">
+    <span class="hero-titulo">ZILLOAH</span><span class="hero-club"> Club</span>
   </div>
+  <div class="hero-programa">Programa de Fidelidade</div>
   <div class="hero-loja">São Caetano</div>
   <p class="hero-sub">
     Visite o quiosque, acumule visitas e ganhe <strong>cashback real</strong> em todas as suas compras.
