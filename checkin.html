@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Zilloah Club — Check-in</title>
+<style>
+  :root {
+    --ouro: #C9A84C;
+    --ouro-claro: #F5E6C0;
+    --preto: #0D0D0D;
+    --cinza-escuro: #1A1A1A;
+    --cinza-medio: #2C2C2C;
+    --cinza-borda: #3A3A3A;
+    --branco: #FAFAFA;
+    --branco-apagado: #B0B0B0;
+    --verde: #4CAF7D;
+    --vermelho: #E05C5C;
+    --bronze: #CD7F32;
+    --prata: #A8A9AD;
+    --fonte: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--preto);
+    color: var(--branco);
+    font-family: var(--fonte);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LOGO ── */
+  .logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo-texto {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ouro);
+  }
+  .logo-sub {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+    margin-top: 4px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--cinza-escuro);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .card-titulo {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* ── INPUTS ── */
+  .campo-grupo {
+    margin-bottom: 16px;
+  }
+  .campo-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .campo-input {
+    width: 100%;
+    background: var(--cinza-medio);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: var(--fonte);
+    color: var(--branco);
+    letter-spacing: 0.06em;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .campo-input:focus {
+    border-color: var(--ouro);
+  }
+  .campo-input::placeholder {
+    color: #555;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── BOTÃO ── */
+  .btn-checkin {
+    width: 100%;
+    background: var(--ouro);
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--fonte);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--preto);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+  .btn-checkin:active { transform: scale(0.98); }
+  .btn-checkin:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-checkin.carregando { opacity: 0.7; }
+
+  /* ── RESULTADO ── */
+  .resultado {
+    display: none;
+    margin-top: 24px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+  .resultado.visivel { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .tier-bronze { background: rgba(205,127,50,0.15); color: var(--bronze); border: 1px solid rgba(205,127,50,0.3); }
+  .tier-prata  { background: rgba(168,169,173,0.15); color: var(--prata); border: 1px solid rgba(168,169,173,0.3); }
+  .tier-ouro   { background: rgba(201,168,76,0.15); color: var(--ouro); border: 1px solid rgba(201,168,76,0.3); }
+
+  .resultado-msg {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--branco);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .resultado-sub {
+    font-size: 14px;
+    color: var(--branco-apagado);
+    line-height: 1.5;
+  }
+
+  .saldo-box {
+    background: var(--cinza-medio);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .saldo-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+  }
+  .saldo-valor {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ouro);
+  }
+
+  .erro-box {
+    background: rgba(224,92,92,0.1);
+    border: 1px solid rgba(224,92,92,0.3);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--vermelho);
+    font-size: 14px;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .btn-novo {
+    background: transparent;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: var(--branco-apagado);
+    font-size: 13px;
+    font-family: var(--fonte);
+    cursor: pointer;
+    margin-top: 20px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-novo:hover { border-color: var(--ouro); color: var(--ouro); }
+
+  /* ── MODO VITÓRIA ── */
+  .modo-vitoria-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ouro);
+    margin-bottom: 20px;
+  }
+
+  .checkins-lista {
+    margin-top: 24px;
+    border-top: 1px solid var(--cinza-borda);
+    padding-top: 20px;
+  }
+  .checkins-titulo {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+    margin-bottom: 12px;
+  }
+  .checkin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    animation: fadeIn 0.3s ease;
+  }
+  .checkin-item:last-child { border-bottom: none; }
+  .checkin-cpf {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--branco);
+    font-family: monospace;
+    letter-spacing: 0.05em;
+  }
+  .checkin-info {
+    font-size: 11px;
+    color: var(--branco-apagado);
+    margin-top: 2px;
+  }
+  .checkin-hora {
+    font-size: 12px;
+    color: var(--branco-apagado);
+    font-family: monospace;
+  }
+
+  .contador {
+    text-align: center;
+    padding: 16px;
+    background: var(--cinza-medio);
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+  .contador-num {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ouro);
+    display: block;
+  }
+  .contador-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--branco-apagado);
+  }
+
+  /* ── RESPONSIVO ── */
+  @media (max-width: 400px) {
+    .card { padding: 24px 20px; }
+    .logo-texto { font-size: 24px; }
+  }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(13,13,13,0.3);
+    border-top-color: var(--preto);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-texto">Zilloah</div>
+  <div class="logo-sub">Programa de Fidelidade</div>
+</div>
+
+<div class="card" id="card-principal">
+  <div id="modo-badge"></div>
+  <div class="card-titulo" id="card-titulo">Registrar Visita</div>
+
+  <div id="formulario">
+    <div class="campo-grupo">
+      <label class="campo-label" for="cpf-input">Seu CPF</label>
+      <input
+        type="tel"
+        id="cpf-input"
+        class="campo-input"
+        placeholder="000.000.000-00"
+        maxlength="14"
+        autocomplete="off"
+        inputmode="numeric"
+      >
+    </div>
+
+    <div class="campo-grupo" id="campo-vendedora" style="display:none">
+      <label class="campo-label" for="vendedora-input">Vendedora</label>
+      <input
+        type="text"
+        id="vendedora-input"
+        class="campo-input"
+        placeholder="Nome da vendedora"
+        style="font-size:16px"
+        autocomplete="off"
+      >
+    </div>
+
+    <button class="btn-checkin" id="btn-checkin" onclick="fazerCheckin()">
+      Confirmar Visita
+    </button>
+  </div>
+
+  <div class="resultado" id="resultado"></div>
+
+  <div id="checkins-lista-container" style="display:none">
+    <div class="checkins-lista">
+      <div class="checkins-titulo">Check-ins de hoje</div>
+      <div id="contador-hoje" class="contador">
+        <span class="contador-num" id="num-checkins">0</span>
+        <span class="contador-label">visitas registradas</span>
+      </div>
+      <div id="lista-checkins"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hgkkfrivkyizktumtovn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhna2tmcml2a3lpemt0dW10b3ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4ODgxMjEsImV4cCI6MjA5NjQ2NDEyMX0.F-sYcaQjM5dRNibP6yCGCmHK5m8cjHUlVJKJHCnQaXA';
+
+const params = new URLSearchParams(window.location.search);
+const modoVitoria = params.has('vitoria');
+const checkinsHoje = [];
+
+// ── INICIALIZAÇÃO ──
+function init() {
+  if (modoVitoria) {
+    document.getElementById('modo-badge').innerHTML = '<div class="modo-vitoria-badge">Modo Vendedora</div>';
+    document.getElementById('card-titulo').textContent = 'Registrar Visita';
+    document.getElementById('campo-vendedora').style.display = 'block';
+    document.getElementById('checkins-lista-container').style.display = 'block';
+  }
+
+  // Máscara CPF
+  const input = document.getElementById('cpf-input');
+  input.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.slice(0, 11);
+    if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
+    else if (v.length > 3) v = v.replace(/(\d{3})(\d+)/, '$1.$2');
+    this.value = v;
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') fazerCheckin();
+  });
+}
+
+// ── FORMATA CPF ──
+function formatarCPF(cpf) {
+  const d = cpf.replace(/\D/g, '');
+  return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function cpfSemMascara(cpf) {
+  return cpf.replace(/\D/g, '');
+}
+
+// ── TIER DISPLAY ──
+function tierInfo(tier) {
+  const mapa = {
+    ouro:   { emoji: '🥇', label: 'Ouro VIP',  classe: 'tier-ouro',   cashback: '8%' },
+    prata:  { emoji: '🥈', label: 'Prata',      classe: 'tier-prata',  cashback: '5%' },
+    bronze: { emoji: '🥉', label: 'Bronze',     classe: 'tier-bronze', cashback: '3%' },
+  };
+  return mapa[tier] || mapa.bronze;
+}
+
+// ── FAZER CHECK-IN ──
+async function fazerCheckin() {
+  const cpfInput = document.getElementById('cpf-input').value;
+  const cpfLimpo = cpfSemMascara(cpfInput);
+  const vendedora = document.getElementById('vendedora-input')?.value?.trim() || '';
+
+  if (cpfLimpo.length < 11) {
+    mostrarErro('Digite um CPF válido com 11 dígitos.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-checkin');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Registrando...';
+  btn.classList.add('carregando');
+  esconderResultado();
+
+  try {
+    // 1. Verifica duplicata (24h)
+    const agora = new Date();
+    const limite24h = new Date(agora - 24 * 60 * 60 * 1000).toISOString();
+
+    const respVerifica = await fetch(
+      `${SUPABASE_URL}/rest/v1/visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite24h)}&select=id`,
+      { headers: headers() }
+    );
+    const visitasRecentes = await respVerifica.json();
+    const valida = visitasRecentes.length === 0;
+
+    // 2. Insere visita
+    const metodo = modoVitoria ? 'cpf' : 'qr';
+    await fetch(`${SUPABASE_URL}/rest/v1/visitas`, {
+      method: 'POST',
+      headers: { ...headers(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        cpf: cpfLimpo,
+        data_hora: agora.toISOString(),
+        metodo,
+        valida,
+        vendedora_id: vendedora || null,
+        loja_id: 'sao_caetano'
+      })
+    });
+
+    // 3. Busca dados do cliente
+    const respCliente = await fetch(
+      `${SUPABASE_URL}/rest/v1/clientes_club?cpf=eq.${cpfLimpo}&select=tier,saldo_cashback,visitas_30d,nome`,
+      { headers: headers() }
+    );
+    const clientes = await respCliente.json();
+    const cliente = clientes[0] || {};
+
+    // 4. Atualiza clientes_club se visita válida
+    if (valida) {
+      const respVisitas30d = await fetch(
+        `${SUPABASE_URL}/rest/v1/visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(new Date(agora - 30*24*60*60*1000).toISOString())}&select=id`,
+        { headers: headers() }
+      );
+      const visitas30d = await respVisitas30d.json();
+      const total30d = visitas30d.length;
+      const novoTier = total30d >= 3 ? 'ouro' : total30d === 2 ? 'prata' : 'bronze';
+      const expiraEm = new Date(agora.getTime() + 90*24*60*60*1000).toISOString().split('T')[0];
+
+      await fetch(`${SUPABASE_URL}/rest/v1/clientes_club?cpf=eq.${cpfLimpo}`, {
+        method: clientes.length > 0 ? 'PATCH' : 'POST',
+        headers: { ...headers(), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({
+          cpf: cpfLimpo,
+          tier: novoTier,
+          visitas_30d: total30d,
+          ultima_visita: agora.toISOString(),
+          saldo_expira_em: expiraEm,
+          atualizado_em: agora.toISOString()
+        })
+      });
+      cliente.tier = novoTier;
+      cliente.visitas_30d = total30d;
+    }
+
+    // 5. Mostra resultado
+    mostrarResultado(cpfLimpo, cliente, valida);
+
+    // 6. Adiciona à lista se modo Vitória
+    if (modoVitoria) {
+      adicionarCheckinLista(cpfLimpo, cliente.tier || 'bronze', valida);
+    }
+
+  } catch (err) {
+    mostrarErro('Erro ao registrar. Tente novamente.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Confirmar Visita';
+    btn.classList.remove('carregando');
+  }
+}
+
+function headers() {
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+// ── MOSTRAR RESULTADO ──
+function mostrarResultado(cpf, cliente, valida) {
+  const div = document.getElementById('resultado');
+  const tier = cliente.tier || 'bronze';
+  const info = tierInfo(tier);
+  const saldo = parseFloat(cliente.saldo_cashback || 0).toFixed(2);
+  const visitas = cliente.visitas_30d || 1;
+
+  if (!valida) {
+    div.innerHTML = `
+      <div class="erro-box">
+        Você já registrou uma visita nas últimas 24 horas.<br>
+        <span style="font-size:12px;opacity:0.7;margin-top:4px;display:block">Volte amanhã para acumular mais pontos!</span>
+      </div>
+      <button class="btn-novo" onclick="resetar()">Nova consulta</button>
+    `;
+  } else {
+    const proxTier = tier === 'bronze' ? `Mais ${2 - visitas} visita(s) para Prata` :
+                     tier === 'prata'  ? `Mais ${3 - visitas} visita(s) para Ouro VIP` :
+                     'Você é Ouro VIP! 🎉';
+    div.innerHTML = `
+      <div class="tier-badge ${info.classe}">${info.emoji} ${info.label}</div>
+      <div class="resultado-msg">Check-in registrado!</div>
+      <div class="resultado-sub">Você tem ${info.cashback} de cashback nas compras hoje.<br><small style="opacity:0.6">${proxTier}</small></div>
+      <div class="saldo-box">
+        <div>
+          <div class="saldo-label">Saldo disponível</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Cashback acumulado</div>
+        </div>
+        <div class="saldo-valor">R$ ${saldo}</div>
+      </div>
+      <button class="btn-novo" onclick="resetar()">Nova visita</button>
+    `;
+  }
+
+  div.classList.add('visivel');
+  document.getElementById('formulario').style.display = 'none';
+}
+
+function mostrarErro(msg) {
+  const div = document.getElementById('resultado');
+  div.innerHTML = `
+    <div class="erro-box">${msg}</div>
+    <button class="btn-novo" onclick="resetar()">Tentar novamente</button>
+  `;
+  div.classList.add('visivel');
+  document.getElementById('formulario').style.display = 'none';
+}
+
+function esconderResultado() {
+  const div = document.getElementById('resultado');
+  div.classList.remove('visivel');
+  div.innerHTML = '';
+}
+
+function resetar() {
+  esconderResultado();
+  document.getElementById('formulario').style.display = 'block';
+  document.getElementById('cpf-input').value = '';
+  document.getElementById('cpf-input').focus();
+}
+
+// ── LISTA MODO VITÓRIA ──
+function adicionarCheckinLista(cpf, tier, valida) {
+  const info = tierInfo(tier);
+  const agora = new Date();
+  const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const cpfFormatado = formatarCPF(cpf);
+
+  checkinsHoje.unshift({ cpf: cpfFormatado, tier, valida, hora });
+
+  const total = checkinsHoje.filter(c => c.valida).length;
+  document.getElementById('num-checkins').textContent = total;
+
+  const lista = document.getElementById('lista-checkins');
+  const item = document.createElement('div');
+  item.className = 'checkin-item';
+  item.innerHTML = `
+    <div>
+      <div class="checkin-cpf">${cpfFormatado}</div>
+      <div class="checkin-info">${info.emoji} ${info.label} ${valida ? '' : '· <span style="color:#E05C5C">duplicata</span>'}</div>
+    </div>
+    <div class="checkin-hora">${hora}</div>
+  `;
+  lista.insertBefore(item, lista.firstChild);
+}
+
+// Inicia
+init();
+</script>
+
+</body>
+</html>
