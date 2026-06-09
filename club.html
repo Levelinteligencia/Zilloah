@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zilloah Club — Painel</title>
+<style>
+:root{
+  --verde:#03bb85;--verde-dim:rgba(3,187,133,0.12);--verde-borda:rgba(3,187,133,0.25);
+  --preto:#090909;--card:#111;--card2:#161616;--borda:#222;--borda2:#2a2a2a;
+  --txt:#f0f0f0;--txt2:#888;--txt3:#555;
+  --bronze:#CD7F32;--prata:#A8A9AD;--ouro:#C9A84C;
+  --r:14px;--fonte:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--preto);color:var(--txt);font-family:var(--fonte);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(135deg,#0a1a15 0%,#0d0d0d 60%);
+  border-bottom:1px solid var(--verde-borda);
+  padding:20px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);
+}
+.header-logo{display:flex;align-items:baseline;gap:8px}
+.header-nome{font-size:22px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--verde)}
+.header-club{font-size:22px;font-weight:300;letter-spacing:0.14em;color:#bbb}
+.header-loja{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--txt3);margin-left:4px;align-self:center}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt3);letter-spacing:0.08em;text-transform:uppercase}
+.dot-live{width:7px;height:7px;background:var(--verde);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.btn-refresh{background:var(--verde-dim);border:1px solid var(--verde-borda);border-radius:8px;padding:7px 14px;color:var(--verde);font-size:12px;font-family:var(--fonte);cursor:pointer;transition:.2s;letter-spacing:.06em}
+.btn-refresh:hover{background:rgba(3,187,133,0.2)}
+
+/* ── LAYOUT ── */
+.main{padding:28px 32px;max-width:1400px;margin:0 auto}
+
+/* ── CARDS TOPO ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{
+  background:var(--card);border:1px solid var(--borda);
+  border-radius:var(--r);padding:20px 22px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.stat-card:hover{border-color:var(--borda2)}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--verde),transparent);
+  opacity:0;
+  transition:opacity .3s;
+}
+.stat-card:hover::before{opacity:1}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px}
+.stat-valor{font-size:32px;font-weight:800;color:var(--txt);line-height:1}
+.stat-sub{font-size:12px;color:var(--txt3);margin-top:6px}
+.stat-card.verde .stat-valor{color:var(--verde)}
+.stat-card.ouro  .stat-valor{color:var(--ouro)}
+.stat-card.prata .stat-valor{color:var(--prata)}
+.stat-card.bronze .stat-valor{color:var(--bronze)}
+
+/* ── GRID PRINCIPAL ── */
+.grid-principal{display:grid;grid-template-columns:1fr 380px;gap:20px}
+
+/* ── PAINEL CLIENTES ── */
+.painel{
+  background:var(--card);border:1px solid var(--borda);
+  border-radius:var(--r);overflow:hidden;
+}
+.painel-header{
+  padding:18px 22px;border-bottom:1px solid var(--borda);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.painel-titulo{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2)}
+.painel-acao{display:flex;gap:8px;align-items:center}
+
+/* BUSCA */
+.busca-wrap{position:relative}
+.busca-input{
+  background:var(--card2);border:1px solid var(--borda2);
+  border-radius:8px;padding:7px 12px 7px 32px;
+  color:var(--txt);font-size:13px;font-family:var(--fonte);
+  outline:none;width:220px;transition:border-color .2s;
+}
+.busca-input:focus{border-color:var(--verde)}
+.busca-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px;pointer-events:none}
+
+/* FILTRO TIER */
+.filtro-tier{display:flex;gap:6px}
+.ftag{
+  padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid var(--borda2);color:var(--txt3);
+  background:transparent;font-family:var(--fonte);transition:.2s;
+}
+.ftag.ativo.todos{border-color:var(--verde);color:var(--verde);background:var(--verde-dim)}
+.ftag.ativo.bronze{border-color:var(--bronze);color:var(--bronze);background:rgba(205,127,50,.1)}
+.ftag.ativo.prata {border-color:var(--prata); color:var(--prata); background:rgba(168,169,173,.1)}
+.ftag.ativo.ouro  {border-color:var(--ouro);  color:var(--ouro);  background:rgba(201,168,76,.1)}
+
+/* TABELA */
+.tabela-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:10px 16px;font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt3);text-align:left;
+  border-bottom:1px solid var(--borda);
+  position:sticky;top:0;background:var(--card);
+}
+tbody tr{
+  border-bottom:1px solid rgba(255,255,255,.03);
+  cursor:pointer;transition:background .15s;
+}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:last-child{border-bottom:none}
+td{padding:13px 16px;font-size:13px;vertical-align:middle}
+.td-cpf{font-family:monospace;color:var(--txt2);font-size:12px}
+.td-nome{font-weight:600;color:var(--txt)}
+.td-tier{}
+.tier-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;
+}
+.tp-bronze{background:rgba(205,127,50,.12);color:var(--bronze);border:1px solid rgba(205,127,50,.25)}
+.tp-prata {background:rgba(168,169,173,.12);color:var(--prata); border:1px solid rgba(168,169,173,.25)}
+.tp-ouro  {background:rgba(201,168,76,.12); color:var(--ouro);  border:1px solid rgba(201,168,76,.3)}
+.td-visitas{text-align:center}
+.visitas-bar{display:flex;align-items:center;gap:8px}
+.bar-outer{flex:1;height:4px;background:var(--borda2);border-radius:2px;max-width:60px}
+.bar-inner{height:4px;border-radius:2px;transition:width .4s}
+.bar-bronze .bar-inner{background:var(--bronze)}
+.bar-prata  .bar-inner{background:var(--prata)}
+.bar-ouro   .bar-inner{background:var(--ouro)}
+.td-saldo{text-align:right;font-weight:700;color:var(--ouro)}
+.td-ultima{color:var(--txt3);font-size:12px}
+.sem-dados{padding:48px;text-align:center;color:var(--txt3);font-size:14px}
+
+/* ── SIDEBAR DIREITA ── */
+.sidebar{display:flex;flex-direction:column;gap:16px}
+
+/* CARD DETALHE CLIENTE */
+.detalhe-card{
+  background:var(--card);border:1px solid var(--borda);
+  border-radius:var(--r);overflow:hidden;
+}
+.detalhe-vazio{
+  padding:40px 24px;text-align:center;
+  color:var(--txt3);font-size:13px;line-height:1.7;
+}
+.detalhe-vazio .ico{font-size:32px;margin-bottom:12px;display:block;opacity:.4}
+.detalhe-header{
+  padding:20px 22px;
+  background:linear-gradient(135deg,rgba(3,187,133,.06),transparent);
+  border-bottom:1px solid var(--borda);
+}
+.detalhe-nome{font-size:18px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.detalhe-cpf{font-size:12px;color:var(--txt3);font-family:monospace}
+.detalhe-tier-grande{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:100px;
+  font-size:13px;font-weight:700;margin-top:12px;
+}
+.detalhe-body{padding:18px 22px}
+.detalhe-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.detalhe-row:last-child{border-bottom:none}
+.dr-label{font-size:11px;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase}
+.dr-valor{font-size:14px;font-weight:600;color:var(--txt)}
+.saldo-grande{font-size:22px;font-weight:800;color:var(--ouro)}
+.progress-visitas{margin-top:16px;padding-top:16px;border-top:1px solid var(--borda)}
+.pv-label{font-size:11px;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.pv-steps{display:flex;gap:8px}
+.pv-step{
+  flex:1;height:6px;border-radius:3px;
+  background:var(--borda2);transition:background .4s;
+}
+.pv-step.ativo-bronze{background:var(--bronze)}
+.pv-step.ativo-prata {background:var(--prata)}
+.pv-step.ativo-ouro  {background:var(--ouro)}
+
+/* CARD CHECK-INS DO DIA */
+.checkins-card{
+  background:var(--card);border:1px solid var(--borda);
+  border-radius:var(--r);overflow:hidden;
+  max-height:320px;display:flex;flex-direction:column;
+}
+.checkins-card .painel-header{flex-shrink:0}
+.checkins-lista-dia{overflow-y:auto;flex:1}
+.ci-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03);
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.ci-item:last-child{border-bottom:none}
+.ci-cpf{font-size:13px;font-weight:600;color:var(--txt);font-family:monospace}
+.ci-meta{font-size:11px;color:var(--txt3);margin-top:2px}
+.ci-hora{font-size:11px;color:var(--txt3);font-family:monospace}
+.ci-vazio{padding:24px;text-align:center;color:var(--txt3);font-size:13px}
+
+/* SPINNER */
+.spinner-wrap{display:flex;align-items:center;justify-content:center;padding:60px}
+.spinner{width:28px;height:28px;border:2px solid var(--borda2);border-top-color:var(--verde);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOADING SKELETON */
+.skel{background:linear-gradient(90deg,var(--borda) 25%,var(--borda2) 50%,var(--borda) 75%);background-size:200% 100%;animation:skel 1.4s ease infinite;border-radius:4px}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* RESPONSIVO */
+@media(max-width:1100px){.grid-principal{grid-template-columns:1fr}.sidebar{display:none}}
+@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}.main{padding:16px}.header{padding:14px 16px}}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--card);border:1px solid var(--verde-borda);
+  border-radius:10px;padding:12px 18px;
+  font-size:13px;color:var(--txt);
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:toastIn .3s ease;
+  display:none;
+}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">
+    <span class="header-nome">ZILLOAH</span>
+    <span class="header-club">Club</span>
+    <span class="header-loja">· São Caetano</span>
+  </div>
+  <div class="header-right">
+    <div class="header-live"><div class="dot-live"></div> Ao vivo</div>
+    <button class="btn-refresh" onclick="carregar()">&#8635; Atualizar</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card verde">
+      <div class="stat-label">Total no Clube</div>
+      <div class="stat-valor" id="st-total"><span class="skel" style="width:50px;height:32px;display:inline-block"></span></div>
+      <div class="stat-sub">clientes cadastrados</div>
+    </div>
+    <div class="stat-card ouro">
+      <div class="stat-label">&#127942; Ouro VIP</div>
+      <div class="stat-valor" id="st-ouro"><span class="skel" style="width:40px;height:32px;display:inline-block"></span></div>
+      <div class="stat-sub">3+ visitas / mês</div>
+    </div>
+    <div class="stat-card prata">
+      <div class="stat-label">&#129352; Prata</div>
+      <div class="stat-valor" id="st-prata"><span class="skel" style="width:40px;height:32px;display:inline-block"></span></div>
+      <div class="stat-sub">2 visitas / mês</div>
+    </div>
+    <div class="stat-card bronze">
+      <div class="stat-label">&#129353; Bronze</div>
+      <div class="stat-valor" id="st-bronze"><span class="skel" style="width:40px;height:32px;display:inline-block"></span></div>
+      <div class="stat-sub">1 visita / mês</div>
+    </div>
+  </div>
+
+  <!-- GRID PRINCIPAL -->
+  <div class="grid-principal">
+
+    <!-- PAINEL CLIENTES -->
+    <div class="painel">
+      <div class="painel-header">
+        <span class="painel-titulo">Clientes do Clube</span>
+        <div class="painel-acao">
+          <div class="busca-wrap">
+            <span class="busca-ico">&#128269;</span>
+            <input type="text" class="busca-input" id="busca" placeholder="Buscar CPF ou nome..." oninput="filtrar()">
+          </div>
+          <div class="filtro-tier">
+            <button class="ftag todos ativo" onclick="setFiltro('todos',this)">Todos</button>
+            <button class="ftag bronze" onclick="setFiltro('bronze',this)">Bronze</button>
+            <button class="ftag prata"  onclick="setFiltro('prata',this)">Prata</button>
+            <button class="ftag ouro"   onclick="setFiltro('ouro',this)">Ouro</button>
+          </div>
+        </div>
+      </div>
+      <div class="tabela-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Tier</th>
+              <th style="text-align:center">Visitas 30d</th>
+              <th style="text-align:right">Saldo</th>
+              <th>Ultima visita</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="tabela-loading" class="spinner-wrap"><div class="spinner"></div></div>
+        <div id="tabela-vazio" class="sem-dados" style="display:none">
+          Nenhum cliente encontrado.
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- DETALHE CLIENTE -->
+      <div class="detalhe-card" id="detalhe-card">
+        <div class="detalhe-vazio" id="detalhe-vazio">
+          <span class="ico">&#128100;</span>
+          Clique em um cliente<br>para ver os detalhes
+        </div>
+        <div id="detalhe-conteudo" style="display:none">
+          <div class="detalhe-header">
+            <div class="detalhe-nome" id="det-nome">-</div>
+            <div class="detalhe-cpf" id="det-cpf">-</div>
+            <div class="detalhe-tier-grande" id="det-tier-badge"></div>
+          </div>
+          <div class="detalhe-body">
+            <div class="detalhe-row">
+              <span class="dr-label">Saldo cashback</span>
+              <span class="saldo-grande" id="det-saldo">R$ 0,00</span>
+            </div>
+            <div class="detalhe-row">
+              <span class="dr-label">Visitas (30 dias)</span>
+              <span class="dr-valor" id="det-visitas">0</span>
+            </div>
+            <div class="detalhe-row">
+              <span class="dr-label">Ultima visita</span>
+              <span class="dr-valor" id="det-ultima">-</span>
+            </div>
+            <div class="detalhe-row">
+              <span class="dr-label">Saldo expira em</span>
+              <span class="dr-valor" id="det-expira">-</span>
+            </div>
+            <div class="progress-visitas">
+              <div class="pv-label">Progresso de nível</div>
+              <div class="pv-steps" id="det-steps"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHECK-INS DO DIA -->
+      <div class="checkins-card">
+        <div class="painel-header">
+          <span class="painel-titulo">Check-ins de hoje</span>
+          <span style="font-size:22px;font-weight:800;color:var(--verde)" id="ci-total">0</span>
+        </div>
+        <div class="checkins-lista-dia" id="checkins-lista"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SURL = 'https://hgkkfrivkyizktumtovn.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhna2tmcml2a3lpemt0dW10b3ZuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDg4ODEyMSwiZXhwIjoyMDk2NDY0MTIxfQ.lxoAdoT-wJQy8dlKu4YhRi_a8xGDnhqoIUM_HrNS_O0';
+
+let todosClientes = [];
+let filtroAtivo = 'todos';
+let clienteSelecionado = null;
+
+const hdrs = () => ({
+  'apikey': SKEY, 'Authorization': `Bearer ${SKEY}`, 'Content-Type': 'application/json'
+});
+
+async function sbGet(path) {
+  const r = await fetch(`${SURL}/rest/v1/${path}`, { headers: hdrs() });
+  if (!r.ok) return [];
+  const d = await r.json();
+  return Array.isArray(d) ? d : [];
+}
+
+async function carregar() {
+  document.getElementById('tabela-loading').style.display = 'flex';
+  document.getElementById('tabela-vazio').style.display = 'none';
+  document.getElementById('tbody').innerHTML = '';
+
+  const [clientes, checkins] = await Promise.all([
+    sbGet('clientes_club?select=*&order=atualizado_em.desc'),
+    sbGet(`visitas?select=cpf,data_hora,valida&data_hora=gte.${hojeISO()}&order=data_hora.desc`)
+  ]);
+
+  todosClientes = clientes;
+  atualizarStats(clientes);
+  renderTabela(clientes);
+  renderCheckins(checkins);
+  document.getElementById('tabela-loading').style.display = 'none';
+}
+
+function hojeISO() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString();
+}
+
+function atualizarStats(clientes) {
+  document.getElementById('st-total').textContent  = clientes.length;
+  document.getElementById('st-ouro').textContent   = clientes.filter(c=>c.tier==='ouro').length;
+  document.getElementById('st-prata').textContent  = clientes.filter(c=>c.tier==='prata').length;
+  document.getElementById('st-bronze').textContent = clientes.filter(c=>c.tier==='bronze').length;
+}
+
+function filtrar() {
+  const q = document.getElementById('busca').value.toLowerCase();
+  let lista = todosClientes;
+  if (filtroAtivo !== 'todos') lista = lista.filter(c => c.tier === filtroAtivo);
+  if (q) lista = lista.filter(c =>
+    (c.cpf||'').includes(q) ||
+    (c.nome||'').toLowerCase().includes(q) ||
+    (c.whatsapp||'').includes(q)
+  );
+  renderTabela(lista);
+}
+
+function setFiltro(tier, el) {
+  filtroAtivo = tier;
+  document.querySelectorAll('.ftag').forEach(b => {
+    b.classList.remove('ativo','todos','bronze','prata','ouro');
+    b.classList.add(b.textContent.toLowerCase().trim().replace('todos','todos').replace('bronze','bronze').replace('prata','prata').replace('ouro','ouro'));
+  });
+  el.classList.add('ativo', tier === 'todos' ? 'todos' : tier);
+  filtrar();
+}
+
+function renderTabela(lista) {
+  const tbody = document.getElementById('tbody');
+  const vazio = document.getElementById('tabela-vazio');
+  tbody.innerHTML = '';
+  if (!lista.length) { vazio.style.display = 'block'; return; }
+  vazio.style.display = 'none';
+
+  lista.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.onclick = () => mostrarDetalhe(c);
+    if (clienteSelecionado && clienteSelecionado.cpf === c.cpf) tr.style.background = 'rgba(3,187,133,0.05)';
+
+    const tier = c.tier || 'bronze';
+    const tInfo = tierInfo(tier);
+    const visitas = c.visitas_30d || 0;
+    const maxBar = tier === 'bronze' ? 1 : tier === 'prata' ? 2 : 3;
+    const pct = Math.min((visitas / maxBar) * 100, 100);
+    const saldo = parseFloat(c.saldo_cashback || 0).toFixed(2);
+    const ultimaVisita = c.ultima_visita ? formatarData(c.ultima_visita) : '—';
+    const nome = c.nome || cpfMask(c.cpf);
+
+    tr.innerHTML = `
+      <td>
+        <div class="td-nome">${nome}</div>
+        <div class="td-cpf">${cpfMask(c.cpf)}</div>
+      </td>
+      <td class="td-tier">
+        <div class="tier-pill tp-${tier}">${tInfo.emoji} ${tInfo.label}</div>
+      </td>
+      <td class="td-visitas">
+        <div class="visitas-bar">
+          <span style="font-size:13px;font-weight:700;color:var(--txt);min-width:18px">${visitas}</span>
+          <div class="bar-outer bar-${tier}"><div class="bar-inner" style="width:${pct}%"></div></div>
+        </div>
+      </td>
+      <td class="td-saldo">R$ ${saldo}</td>
+      <td class="td-ultima">${ultimaVisita}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function mostrarDetalhe(c) {
+  clienteSelecionado = c;
+  document.getElementById('detalhe-vazio').style.display = 'none';
+  document.getElementById('detalhe-conteudo').style.display = 'block';
+
+  const tier = c.tier || 'bronze';
+  const tInfo = tierInfo(tier);
+  const saldo = parseFloat(c.saldo_cashback || 0).toFixed(2).replace('.',',');
+  const visitas = c.visitas_30d || 0;
+
+  document.getElementById('det-nome').textContent = c.nome || 'Cliente';
+  document.getElementById('det-cpf').textContent  = cpfMask(c.cpf);
+  document.getElementById('det-saldo').textContent = `R$ ${saldo}`;
+  document.getElementById('det-visitas').textContent = `${visitas} visita${visitas!==1?'s':''}`;
+  document.getElementById('det-ultima').textContent = c.ultima_visita ? formatarData(c.ultima_visita) : '—';
+  document.getElementById('det-expira').textContent = c.saldo_expira_em || '—';
+
+  const badge = document.getElementById('det-tier-badge');
+  badge.textContent = `${tInfo.emoji} ${tInfo.label}`;
+  badge.className = 'detalhe-tier-grande tier-pill tp-' + tier;
+
+  // Progress steps
+  const steps = document.getElementById('det-steps');
+  steps.innerHTML = '';
+  const total = 3;
+  for (let i = 0; i < total; i++) {
+    const s = document.createElement('div');
+    s.className = 'pv-step' + (i < visitas ? ` ativo-${tier}` : '');
+    steps.appendChild(s);
+  }
+
+  // Highlight linha na tabela
+  filtrar();
+}
+
+function renderCheckins(checkins) {
+  const lista = document.getElementById('checkins-lista');
+  const validos = checkins.filter(c => c.valida);
+  document.getElementById('ci-total').textContent = validos.length;
+
+  if (!checkins.length) {
+    lista.innerHTML = '<div class="ci-vazio">Nenhum check-in hoje ainda.</div>';
+    return;
+  }
+  lista.innerHTML = '';
+  checkins.slice(0, 20).forEach(c => {
+    const tier = 'bronze'; // simplificado — tier vem do cliente
+    const hora = new Date(c.data_hora).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    const div = document.createElement('div');
+    div.className = 'ci-item';
+    div.innerHTML = `
+      <div>
+        <div class="ci-cpf">${cpfMask(c.cpf)}</div>
+        <div class="ci-meta">${c.valida ? '<span style="color:var(--verde)">&#10003; Válida</span>' : '<span style="color:#E05C5C">Duplicata</span>'}</div>
+      </div>
+      <div class="ci-hora">${hora}</div>
+    `;
+    lista.appendChild(div);
+  });
+}
+
+function tierInfo(tier) {
+  return {
+    ouro:   { emoji: '\uD83E\uDD47', label: 'Ouro VIP', cashback: '8%' },
+    prata:  { emoji: '\uD83E\uDD48', label: 'Prata',    cashback: '5%' },
+    bronze: { emoji: '\uD83E\uDD49', label: 'Bronze',   cashback: '3%' },
+  }[tier] || { emoji: '\uD83E\uDD49', label: 'Bronze', cashback: '3%' };
+}
+
+function cpfMask(cpf) {
+  if (!cpf) return '—';
+  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function formatarData(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit'}) +
+         ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+// Auto-refresh a cada 60s
+setInterval(carregar, 60000);
+carregar();
+</script>
+</body>
+</html>
