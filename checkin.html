@@ -173,12 +173,18 @@ async function fazerCheckin() {
   try {
     const agora = new Date();
     const limite24h = new Date(agora - 24*60*60*1000).toISOString();
+    const limite30d = new Date(agora - 30*24*60*60*1000).toISOString();
 
-    // 1. Verifica duplicata
-    const recentes = await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite24h)}&select=id`);
-    const valida = recentes.length === 0;
+    // 1. Conta visitas dos últimos 30 dias ANTES de inserir
+    const vsAntes = await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite30d)}&select=id`);
+    const visitasAntes = vsAntes.length;
 
-    // 2. Insere visita
+    // 2. Verifica duplicata (últimas 24h)
+    const recentes = vsAntes.filter(v => v); // já temos as visitas, filtra as 24h
+    const recentes24h = await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite24h)}&select=id`);
+    const valida = recentes24h.length === 0;
+
+    // 3. Insere visita
     await fetch(`${SUPABASE_URL}/rest/v1/visitas`, {
       method: 'POST',
       headers: { ...hdrs(), 'Prefer': 'return=minimal' },
@@ -189,15 +195,13 @@ async function fazerCheckin() {
       })
     });
 
-    // 3. Busca cliente
+    // 4. Busca dados do cliente
     const clientes = await sbGet(`clientes_club?cpf=eq.${cpfLimpo}&select=tier,saldo_cashback,visitas_30d,nome`);
     const cliente = clientes[0] || {};
 
-    // 4. Recalcula tier
+    // 5. Calcula novo total = visitas antes + 1 (a que acabou de ser inserida)
     if (valida) {
-      const limite30d = new Date(agora - 30*24*60*60*1000).toISOString();
-      const vs30 = await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite30d)}&select=id`);
-      const total = vs30.length;
+      const total = visitasAntes + 1;
       const novoTier = total >= 3 ? 'ouro' : total === 2 ? 'prata' : 'bronze';
       const expiraEm = new Date(agora.getTime() + 90*24*60*60*1000).toISOString().split('T')[0];
       const method = clientes.length > 0 ? 'PATCH' : 'POST';
