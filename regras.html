@@ -6,70 +6,26 @@
 <title>Zilloah Club — Como funciona</title>
 <style>
   :root {
-    --verde: #03bb85;
-    --verde-fundo: #021f17;
-    --preto: #0D0D0D;
-    --cinza-e: #1A1A1A;
-    --cinza-m: #2C2C2C;
-    --cinza-b: #3A3A3A;
-    --branco: #FAFAFA;
-    --apagado: #888888;
-    --bronze: #CD7F32;
-    --prata: #A8A9AD;
-    --ouro: #C9A84C;
+    --verde: #03bb85;--verde-fundo: #021f17;--preto: #0D0D0D;--cinza-e: #1A1A1A;
+    --cinza-m: #2C2C2C;--cinza-b: #3A3A3A;--branco: #FAFAFA;--apagado: #888888;
+    --bronze: #CD7F32;--prata: #A8A9AD;--ouro: #C9A84C;
     --fonte: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--preto);
-    color: var(--branco);
-    font-family: var(--fonte);
-    -webkit-font-smoothing: antialiased;
-    padding: 0 0 48px;
-  }
-
-  .hero {
-    background: var(--verde-fundo);
-    border-bottom: 1px solid rgba(3,187,133,0.15);
-    text-align: center;
-    padding: 48px 24px 40px;
-  }
+  body { background: var(--preto); color: var(--branco); font-family: var(--fonte); -webkit-font-smoothing: antialiased; padding: 0 0 48px; }
+  .hero { background: var(--verde-fundo); border-bottom: 1px solid rgba(3,187,133,0.15); text-align: center; padding: 48px 24px 40px; }
   .hero-titulo-bloco { margin-bottom: 10px; }
-  .hero-titulo {
-    font-size: 36px; font-weight: 800;
-    letter-spacing: 0.14em; text-transform: uppercase; color: var(--verde);
-  }
+  .hero-titulo { font-size: 36px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--verde); }
   .hero-club { font-size: 36px; font-weight: 300; letter-spacing: 0.14em; color: #ccc; }
-  .hero-programa {
-    font-size: 13px; color: var(--apagado);
-    letter-spacing: 0.12em; text-transform: uppercase; margin-top: 8px;
-  }
-  .hero-loja {
-    font-size: 13px; color: var(--verde);
-    letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px;
-  }
-  .hero-sub {
-    font-size: 16px; color: var(--apagado); margin-top: 20px;
-    max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;
-  }
+  .hero-programa { font-size: 13px; color: var(--apagado); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 8px; }
+  .hero-loja { font-size: 13px; color: var(--verde); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px; }
+  .hero-sub { font-size: 16px; color: var(--apagado); margin-top: 20px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
   .hero-sub strong { color: var(--verde); }
-
   .container { max-width: 680px; margin: 0 auto; padding: 0 20px; }
   .secao { margin-top: 48px; }
-  .secao-titulo {
-    font-size: 13px; font-weight: 600; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--verde);
-    margin-bottom: 16px; padding-bottom: 10px;
-    border-bottom: 1px solid rgba(3,187,133,0.2);
-  }
-
+  .secao-titulo { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--verde); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(3,187,133,0.2); }
   .tiers { display: flex; flex-direction: column; gap: 12px; }
-  .tier-card {
-    background: var(--cinza-e); border: 1px solid var(--cinza-b);
-    border-radius: 14px; padding: 20px 22px;
-    display: grid; grid-template-columns: auto 1fr auto;
-    align-items: center; gap: 16px;
-  }
+  .tier-card { background: var(--cinza-e); border: 1px solid var(--cinza-b); border-radius: 14px; padding: 20px 22px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; }
   .tier-card.bronze { border-color: rgba(205,127,50,0.3); }
   .tier-card.prata  { border-color: rgba(168,169,173,0.3); }
   .tier-card.ouro   { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.04); }
@@ -86,89 +42,44 @@
   .tier-bronze .cashback-num { color: var(--bronze); }
   .tier-prata  .cashback-num { color: var(--prata); }
   .tier-ouro   .cashback-num { color: var(--ouro); }
-  .cashback-label {
-    font-size: 10px; color: var(--apagado);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;
-  }
-
-  .laser-box {
-    background: var(--cinza-e); border: 1px solid rgba(3,187,133,0.25);
-    border-radius: 14px; padding: 24px;
-  }
+  .cashback-label { font-size: 10px; color: var(--apagado); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+  .laser-box { background: var(--cinza-e); border: 1px solid rgba(3,187,133,0.25); border-radius: 14px; padding: 24px; }
   .laser-slogan { font-size: 18px; font-weight: 700; color: var(--verde); margin-bottom: 10px; font-style: italic; }
   .laser-desc { font-size: 14px; color: var(--apagado); line-height: 1.7; }
   .laser-desc strong { color: var(--branco); }
   .laser-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .laser-tag {
-    background: rgba(3,187,133,0.1); border: 1px solid rgba(3,187,133,0.25);
-    border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--verde);
-  }
-
+  .laser-tag { background: rgba(3,187,133,0.1); border: 1px solid rgba(3,187,133,0.25); border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--verde); }
   .info-cards { display: flex; flex-direction: column; gap: 10px; }
-  .info-card {
-    background: var(--cinza-e); border: 1px solid var(--cinza-b);
-    border-radius: 12px; padding: 16px 18px;
-    display: flex; gap: 14px; align-items: flex-start;
-  }
+  .info-card { background: var(--cinza-e); border: 1px solid var(--cinza-b); border-radius: 12px; padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start; }
   .info-icone { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
   .info-titulo { font-size: 13px; font-weight: 600; color: var(--branco); margin-bottom: 4px; }
   .info-desc { font-size: 13px; color: var(--apagado); line-height: 1.6; }
   .info-desc strong { color: var(--verde); }
-
   .passos { display: flex; flex-direction: column; gap: 10px; }
   .passo { display: flex; gap: 14px; align-items: flex-start; }
-  .passo-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(3,187,133,0.12); border: 1px solid rgba(3,187,133,0.3);
-    color: var(--verde); font-size: 13px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
+  .passo-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(3,187,133,0.12); border: 1px solid rgba(3,187,133,0.3); color: var(--verde); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .passo-texto { font-size: 14px; color: var(--apagado); line-height: 1.6; padding-top: 5px; }
   .passo-texto strong { color: var(--branco); }
-
-  /* CTA SEM BOTÃO DE CHECK-IN — incentiva visita presencial */
-  .cta-box {
-    margin-top: 48px; text-align: center;
-    background: var(--verde-fundo);
-    border: 1px solid rgba(3,187,133,0.2);
-    border-radius: 16px; padding: 32px 24px;
-  }
+  .cta-box { margin-top: 48px; text-align: center; background: var(--verde-fundo); border: 1px solid rgba(3,187,133,0.2); border-radius: 16px; padding: 32px 24px; }
   .cta-titulo { font-size: 20px; font-weight: 700; color: var(--verde); margin-bottom: 10px; }
   .cta-sub { font-size: 15px; color: var(--apagado); line-height: 1.7; }
   .cta-sub strong { color: var(--branco); }
-  .cta-loja {
-    margin-top: 20px; font-size: 13px; color: var(--apagado);
-    letter-spacing: 0.06em;
-  }
+  .cta-loja { margin-top: 20px; font-size: 13px; color: var(--apagado); letter-spacing: 0.06em; }
   .cta-loja span { color: var(--verde); font-weight: 600; }
-
-  @media (max-width: 480px) {
-    .tier-card { grid-template-columns: auto 1fr; }
-    .tier-cashback { grid-column: 2; text-align: left; }
-    .hero-titulo, .hero-club { font-size: 28px; }
-  }
+  @media (max-width: 480px) { .tier-card { grid-template-columns: auto 1fr; } .tier-cashback { grid-column: 2; text-align: left; } .hero-titulo, .hero-club { font-size: 28px; } }
 </style>
 </head>
 <body>
-
 <div class="hero">
-  <div class="hero-titulo-bloco">
-    <span class="hero-titulo">ZILLOAH</span><span class="hero-club"> Club</span>
-  </div>
+  <div class="hero-titulo-bloco"><span class="hero-titulo">ZILLOAH</span><span class="hero-club"> Club</span></div>
   <div class="hero-programa">Programa de Fidelidade</div>
   <div class="hero-loja">São Caetano</div>
-  <p class="hero-sub">
-    Visite o quiosque, acumule visitas e ganhe <strong>cashback real</strong> em todas as suas compras.
-    <br>Visita sem compra também conta!
-  </p>
+  <p class="hero-sub">Visite o quiosque, acumule visitas e ganhe <strong>cashback real</strong> em todas as suas compras.<br>Visita sem compra também conta!</p>
 </div>
-
 <div class="container">
-
   <div class="secao">
     <div class="secao-titulo">Seus benefícios por nível</div>
     <div class="tiers">
-
       <div class="tier-card bronze">
         <div class="tier-emoji">🥉</div>
         <div class="tier-info">
@@ -176,12 +87,8 @@
           <div class="tier-visitas">1 visita nos últimos 30 dias</div>
           <div class="tier-extras">Acesse o programa e comece a acumular</div>
         </div>
-        <div class="tier-cashback">
-          <div class="cashback-num tier-bronze">3%</div>
-          <div class="cashback-label">cashback</div>
-        </div>
+        <div class="tier-cashback"><div class="cashback-num tier-bronze">4%</div><div class="cashback-label">cashback</div></div>
       </div>
-
       <div class="tier-card prata">
         <div class="tier-emoji">🥈</div>
         <div class="tier-info">
@@ -189,108 +96,49 @@
           <div class="tier-visitas">2 visitas nos últimos 30 dias</div>
           <div class="tier-extras"><span>+ 1 gravação a laser grátis por mês</span></div>
         </div>
-        <div class="tier-cashback">
-          <div class="cashback-num tier-prata">5%</div>
-          <div class="cashback-label">cashback</div>
-        </div>
+        <div class="tier-cashback"><div class="cashback-num tier-prata">8%</div><div class="cashback-label">cashback</div></div>
       </div>
-
       <div class="tier-card ouro">
         <div class="tier-emoji">🥇</div>
         <div class="tier-info">
           <div class="tier-nome tier-ouro">Ouro VIP</div>
           <div class="tier-visitas">3+ visitas nos últimos 30 dias</div>
-          <div class="tier-extras">
-            <span>Gravação ilimitada + prioridade na fila</span><br>
-            <span>Brinde surpresa mensal</span>
-          </div>
+          <div class="tier-extras"><span>Gravação ilimitada + prioridade na fila</span><br><span>Brinde surpresa mensal</span></div>
         </div>
-        <div class="tier-cashback">
-          <div class="cashback-num tier-ouro">8%</div>
-          <div class="cashback-label">cashback</div>
-        </div>
+        <div class="tier-cashback"><div class="cashback-num tier-ouro">12%</div><div class="cashback-label">cashback</div></div>
       </div>
-
     </div>
   </div>
-
   <div class="secao">
     <div class="secao-titulo">Gravação a laser — nosso diferencial</div>
     <div class="laser-box">
       <div class="laser-slogan">"Transforme lembranças em algo eterno!"</div>
-      <p class="laser-desc">
-        Gravamos <strong>textos, nomes, datas e fotos</strong> em peças metálicas com alta precisão.
-        Transforme sua joia em algo único — que não tem preço e ninguém mais tem.
-        Clientes Ouro podem gravar na peça do brinde mensal, criando um objeto verdadeiramente intransferível.
-      </p>
-      <div class="laser-tags">
-        <span class="laser-tag">Nomes e datas</span>
-        <span class="laser-tag">Fotos e imagens</span>
-        <span class="laser-tag">Alta precisão</span>
-        <span class="laser-tag">Exclusivo no quiosque</span>
-      </div>
+      <p class="laser-desc">Gravamos <strong>textos, nomes, datas e fotos</strong> em peças metálicas com alta precisão. Transforme sua joia em algo único — que não tem preço e ninguém mais tem. Clientes Ouro podem gravar na peça do brinde mensal, criando um objeto verdadeiramente intransferível.</p>
+      <div class="laser-tags"><span class="laser-tag">Nomes e datas</span><span class="laser-tag">Fotos e imagens</span><span class="laser-tag">Alta precisão</span><span class="laser-tag">Exclusivo no quiosque</span></div>
     </div>
   </div>
-
   <div class="secao">
     <div class="secao-titulo">Sobre o seu cashback</div>
     <div class="info-cards">
-      <div class="info-card">
-        <div class="info-icone">💳</div>
-        <div>
-          <div class="info-titulo">Como é creditado</div>
-          <div class="info-desc">O cashback entra automaticamente no seu saldo após cada compra. Fica disponível para usar na próxima visita.</div>
-        </div>
-      </div>
-      <div class="info-card">
-        <div class="info-icone">🛍️</div>
-        <div>
-          <div class="info-titulo">Como resgatar</div>
-          <div class="info-desc">Na hora de comprar, peça para a vendedora aplicar seu saldo. O desconto é direto no valor da compra.</div>
-        </div>
-      </div>
-      <div class="info-card">
-        <div class="info-icone">⏳</div>
-        <div>
-          <div class="info-titulo">Prazo de validade</div>
-          <div class="info-desc">O saldo expira após <strong>90 dias sem atividade</strong>. Uma visita ou compra já renova o prazo automaticamente.</div>
-        </div>
-      </div>
+      <div class="info-card"><div class="info-icone">💳</div><div><div class="info-titulo">Como é creditado</div><div class="info-desc">O cashback entra automaticamente no seu saldo após cada compra. Fica disponível para usar na próxima visita.</div></div></div>
+      <div class="info-card"><div class="info-icone">🛍️</div><div><div class="info-titulo">Como resgatar</div><div class="info-desc">Na hora de comprar, peça para a vendedora aplicar seu saldo. O desconto é direto no valor da compra.</div></div></div>
+      <div class="info-card"><div class="info-icone">⏳</div><div><div class="info-titulo">Prazo de validade</div><div class="info-desc">O saldo expira após <strong>90 dias sem atividade</strong>. Uma visita ou compra já renova o prazo automaticamente.</div></div></div>
     </div>
   </div>
-
   <div class="secao">
     <div class="secao-titulo">Como participar</div>
     <div class="passos">
-      <div class="passo">
-        <div class="passo-num">1</div>
-        <div class="passo-texto"><strong>Visite o quiosque</strong> no Shopping São Caetano e peça para a vendedora cadastrar seu CPF.</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">2</div>
-        <div class="passo-texto"><strong>Acumule visitas.</strong> Quanto mais você vem, maior o seu nível e o seu cashback.</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">3</div>
-        <div class="passo-texto"><strong>Compre e ganhe.</strong> O cashback entra no seu saldo automaticamente após cada compra.</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">4</div>
-        <div class="passo-texto"><strong>Resgate na próxima visita</strong> pedindo para a vendedora aplicar seu saldo no valor da compra.</div>
-      </div>
+      <div class="passo"><div class="passo-num">1</div><div class="passo-texto"><strong>Visite o quiosque</strong> no Shopping São Caetano e peça para a vendedora cadastrar seu CPF.</div></div>
+      <div class="passo"><div class="passo-num">2</div><div class="passo-texto"><strong>Acumule visitas.</strong> Quanto mais você vem, maior o seu nível e o seu cashback.</div></div>
+      <div class="passo"><div class="passo-num">3</div><div class="passo-texto"><strong>Compre e ganhe.</strong> O cashback entra no seu saldo automaticamente após cada compra.</div></div>
+      <div class="passo"><div class="passo-num">4</div><div class="passo-texto"><strong>Resgate na próxima visita</strong> pedindo para a vendedora aplicar seu saldo no valor da compra.</div></div>
     </div>
   </div>
-
-  <!-- CTA sem botão de check-in — versão para WhatsApp/divulgação -->
   <div class="cta-box">
     <div class="cta-titulo">Venha nos visitar! 🛍️</div>
-    <div class="cta-sub">
-      O check-in é feito <strong>presencialmente no quiosque</strong>.<br>
-      Quanto mais você visita, mais você ganha.
-    </div>
+    <div class="cta-sub">O check-in é feito <strong>presencialmente no quiosque</strong>.<br>Quanto mais você visita, mais você ganha.</div>
     <div class="cta-loja">Zilloah · <span>Shopping São Caetano</span></div>
   </div>
-
 </div>
 </body>
 </html>
