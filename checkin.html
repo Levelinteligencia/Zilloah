@@ -19,20 +19,15 @@
   .campo-input:focus{border-color:var(--verde)}
   .campo-input::placeholder{color:#555;font-size:16px}
   .campo-input.menor{font-size:15px;letter-spacing:0.02em}
-
-  /* Banner de boas-vindas (novo cliente) */
   .banner-novo{background:rgba(3,187,133,0.08);border:1px solid rgba(3,187,133,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;animation:fadeIn 0.3s ease}
   .banner-novo.visivel{display:block}
   .banner-novo-titulo{font-size:14px;font-weight:700;color:var(--verde);margin-bottom:4px}
   .banner-novo-texto{font-size:12px;color:var(--branco-apagado);line-height:1.5}
-
-  /* Banner Instagram */
   .banner-insta{background:rgba(220,39,67,0.08);border:1px solid rgba(220,39,67,0.25);border-radius:12px;padding:16px;margin-bottom:16px}
   .banner-insta-titulo{font-size:14px;font-weight:700;color:#ff6b8a;margin-bottom:6px}
   .banner-insta-texto{font-size:12px;color:var(--branco-apagado);line-height:1.5;margin-bottom:12px}
   .btn-insta{display:flex;align-items:center;justify-content:center;gap:8px;background:#dc2743;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:8px;text-decoration:none;letter-spacing:0.05em;transition:opacity 0.2s}
   .btn-insta:active{opacity:0.85}
-
   .btn-checkin{width:100%;background:var(--verde);border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;font-family:var(--fonte);letter-spacing:0.1em;text-transform:uppercase;color:var(--preto);cursor:pointer;transition:opacity 0.2s,transform 0.1s;margin-top:8px}
   .btn-checkin:active{transform:scale(0.98)}
   .btn-checkin:disabled{opacity:0.4;cursor:not-allowed}
@@ -66,8 +61,6 @@
   @media(max-width:400px){.card{padding:24px 20px}.logo-texto{font-size:24px}}
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,0.2);border-top-color:var(--preto);border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* Tiers info — cashback atualizado */
   .tiers-info{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
   .tier-chip{font-size:11px;padding:5px 10px;border-radius:20px;font-weight:600;letter-spacing:0.05em}
   .tier-chip.bronze{background:rgba(205,127,50,0.12);color:var(--bronze);border:1px solid rgba(205,127,50,0.25)}
@@ -84,31 +77,22 @@
   <div id="modo-badge"></div>
   <div class="card-titulo">Registrar Visita</div>
   <div id="formulario">
-    <!-- CAMPO CPF -->
     <div class="campo-grupo">
       <label class="campo-label" for="cpf-input">Seu CPF</label>
       <input type="tel" id="cpf-input" class="campo-input" placeholder="000.000.000-00" maxlength="14" autocomplete="off" inputmode="numeric">
     </div>
-
-    <!-- BANNER — só aparece para clientes novos -->
     <div class="banner-novo" id="banner-novo">
       <div class="banner-novo-titulo">🎉 Bem-vinda ao Zilloah Club!</div>
       <div class="banner-novo-texto">Para completar o seu cadastro, informe sua data de nascimento. Assim podemos te surpreender no seu aniversário! 🎂</div>
     </div>
-
-    <!-- CAMPO DATA DE NASCIMENTO — só aparece para clientes novos -->
     <div class="campo-grupo" id="campo-nascimento" style="display:none">
       <label class="campo-label" for="nasc-input">Data de Nascimento</label>
       <input type="date" id="nasc-input" class="campo-input menor" autocomplete="off">
     </div>
-
-    <!-- CAMPO VENDEDORA — só no modo Vitória -->
     <div class="campo-grupo" id="campo-vendedora" style="display:none">
       <label class="campo-label" for="vendedora-input">Vendedora</label>
       <input type="text" id="vendedora-input" class="campo-input" placeholder="Nome da vendedora" style="font-size:16px" autocomplete="off">
     </div>
-
-    <!-- BANNER INSTAGRAM — ganhe mais 10% -->
     <div class="banner-insta">
       <div class="banner-insta-titulo">📸 Ganhe mais 10% de desconto!</div>
       <div class="banner-insta-texto">Siga a Zilloah no Instagram e use em qualquer compra — uma vez, sem prazo para usar.</div>
@@ -116,7 +100,6 @@
         Seguir no Instagram →
       </a>
     </div>
-
     <button class="btn-checkin" id="btn-checkin" onclick="fazerCheckin()">Confirmar Visita</button>
   </div>
   <div class="resultado" id="resultado"></div>
@@ -128,7 +111,6 @@
     </div>
   </div>
 </div>
-<!-- Tiers resumo abaixo do card -->
 <div class="tiers-info">
   <span class="tier-chip bronze">🥉 Bronze · 4%</span>
   <span class="tier-chip prata">🥈 Prata · 8%</span>
@@ -162,25 +144,87 @@ function init(){
 }
 
 function hdrs(){return{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};}
-
 function tierInfo(tier){return{ouro:{emoji:'🥇',label:'Ouro VIP',classe:'tier-ouro',cashback:'12%'},prata:{emoji:'🥈',label:'Prata',classe:'tier-prata',cashback:'8%'},bronze:{emoji:'🥉',label:'Bronze',classe:'tier-bronze',cashback:'4%'}}[tier]||{emoji:'🥉',label:'Bronze',classe:'tier-bronze',cashback:'4%'};}
-
 async function sbGet(path){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{headers:hdrs()});if(!r.ok)return[];const d=await r.json();return Array.isArray(d)?d:[];}catch(e){return[];}}
-
 function inicioDiaHojeSP(){const agora=new Date();const offsetSP=-3*60;const offsetLocal=agora.getTimezoneOffset();const agoraSP=new Date(agora.getTime()+(offsetLocal-(-offsetSP))*60000);const meiaNoiteSP=new Date(agoraSP.getFullYear(),agoraSP.getMonth(),agoraSP.getDate(),0,0,0,0);const meiaNoiteUTC=new Date(meiaNoiteSP.getTime()-(offsetLocal-(-offsetSP))*60000);return meiaNoiteUTC.toISOString();}
 
-async function fazerCheckin(){const cpfLimpo=document.getElementById('cpf-input').value.replace(/\D/g,'');const vendedora=document.getElementById('vendedora-input')?.value?.trim()||'';if(cpfLimpo.length<11){mostrarErro('Digite um CPF válido com 11 dígitos.');return;}
-if(!clienteNovo){const btn=document.getElementById('btn-checkin');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Verificando...';try{const clientes=await sbGet(`clientes_club?cpf=eq.${cpfLimpo}&select=cpf,data_nascimento`);if(clientes.length===0){clienteNovo=true;document.getElementById('campo-nascimento').style.display='block';document.getElementById('banner-novo').classList.add('visivel');btn.disabled=false;btn.innerHTML='Confirmar Cadastro e Check-in';document.getElementById('nasc-input').focus();return;}}catch(e){}btn.disabled=false;btn.innerHTML='Confirmar Visita';}
-const nascInput=document.getElementById('nasc-input').value;if(clienteNovo&&!nascInput){mostrarErro('Por favor, informe sua data de nascimento para se cadastrar.');return;}
-const btn=document.getElementById('btn-checkin');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Registrando...';esconderResultado();
-try{const agora=new Date();const limite30d=new Date(agora-30*24*60*60*1000).toISOString();const vsAntes=await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite30d)}&select=id`);const visitasAntes=vsAntes.length;const inicioDia=inicioDiaHojeSP();const recentesHoje=await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(inicioDia)}&select=id`);const valida=recentesHoje.length===0;await fetch(`${SUPABASE_URL}/rest/v1/visitas`,{method:'POST',headers:{...hdrs(),'Prefer':'return=minimal'},body:JSON.stringify({cpf:cpfLimpo,data_hora:agora.toISOString(),metodo:modoVitoria?'cpf':'qr',valida,vendedora_id:vendedora||null,loja_id:'sao_caetano'})});const clientes=await sbGet(`clientes_club?cpf=eq.${cpfLimpo}&select=tier,saldo_cashback,visitas_30d,nome`);const cliente=clientes[0]||{};if(valida||clienteNovo){const total=valida?(visitasAntes+1):visitasAntes;const novoTier=total>=3?'ouro':total===2?'prata':'bronze';const expiraEm=new Date(agora.getTime()+90*24*60*60*1000).toISOString().split('T')[0];const method=clientes.length>0?'PATCH':'POST';const url=method==='PATCH'?`${SUPABASE_URL}/rest/v1/clientes_club?cpf=eq.${cpfLimpo}`:`${SUPABASE_URL}/rest/v1/clientes_club`;const payload={cpf:cpfLimpo,tier:novoTier,visitas_30d:total,ultima_visita:agora.toISOString(),saldo_expira_em:expiraEm,atualizado_em:agora.toISOString()};if(clienteNovo&&nascInput){payload.data_nascimento=nascInput;}await fetch(url,{method,headers:{...hdrs(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(payload)});cliente.tier=novoTier;cliente.visitas_30d=total;}mostrarResultado(cpfLimpo,cliente,valida,clienteNovo);if(modoVitoria)adicionarLista(cpfLimpo,cliente.tier||'bronze',valida);clienteNovo=false;}catch(err){mostrarErro('Erro ao registrar. Tente novamente.');console.error(err);}finally{btn.disabled=false;btn.innerHTML='Confirmar Visita';}}
+async function fazerCheckin(){
+  const cpfLimpo=document.getElementById('cpf-input').value.replace(/\D/g,'');
+  const vendedora=document.getElementById('vendedora-input')?.value?.trim()||'';
+  if(cpfLimpo.length<11){mostrarErro('Digite um CPF válido com 11 dígitos.');return;}
 
-function mostrarResultado(cpf,cliente,valida,isNovo){const div=document.getElementById('resultado');const tier=cliente.tier||'bronze';const info=tierInfo(tier);const saldo=parseFloat(cliente.saldo_cashback||0).toFixed(2);const visitas=cliente.visitas_30d||1;if(!valida){div.innerHTML=`<div class="aviso-box">Você já registrou uma visita hoje! ⏰<br><span style="font-size:12px;opacity:0.7;margin-top:4px;display:block">Volte amanhã para acumular mais pontos.</span></div><button class="btn-novo" onclick="resetar()">Nova consulta</button>`;}else{const proxTier=tier==='bronze'?`Mais ${2-visitas} visita(s) para Prata`:tier==='prata'?`Mais ${3-visitas} visita(s) para Ouro VIP`:'Você é Ouro VIP! 🎉';const msgBemVinda=isNovo?`<div style="background:rgba(3,187,133,0.08);border:1px solid rgba(3,187,133,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--verde)">🎉 Cadastro concluído! Seja bem-vinda ao Zilloah Club!</div>`:'';div.innerHTML=`${msgBemVinda}<div class="tier-badge ${info.classe}">${info.emoji} ${info.label}</div><div class="resultado-msg">Check-in registrado!</div><div class="resultado-sub">Você tem <b>${info.cashback}</b> de cashback nas compras hoje.<br><small style="opacity:0.6">${proxTier}</small></div><div class="saldo-box"><div><div class="saldo-label">Saldo disponível</div><div style="font-size:11px;color:#555;margin-top:2px">Cashback acumulado</div></div><div class="saldo-valor">R$${saldo}</div></div><button class="btn-novo" onclick="resetar()">Nova visita</button>`;}div.classList.add('visivel');document.getElementById('formulario').style.display='none';}
+  if(!clienteNovo){
+    const btn=document.getElementById('btn-checkin');
+    btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Verificando...';
+    try{
+      // Verifica em clientes_club E em visitas — cliente é novo só se não existe em nenhum dos dois
+      const [clientes, visitasAnteriores] = await Promise.all([
+        sbGet(`clientes_club?cpf=eq.${cpfLimpo}&select=cpf`),
+        sbGet(`visitas?cpf=eq.${cpfLimpo}&select=id&limit=1`)
+      ]);
+      if(clientes.length===0 && visitasAnteriores.length===0){
+        clienteNovo=true;
+        document.getElementById('campo-nascimento').style.display='block';
+        document.getElementById('banner-novo').classList.add('visivel');
+        btn.disabled=false;btn.innerHTML='Confirmar Cadastro e Check-in';
+        document.getElementById('nasc-input').focus();
+        return;
+      }
+    }catch(e){}
+    btn.disabled=false;btn.innerHTML='Confirmar Visita';
+  }
+
+  const nascInput=document.getElementById('nasc-input').value;
+  if(clienteNovo&&!nascInput){mostrarErro('Por favor, informe sua data de nascimento para se cadastrar.');return;}
+  const btn=document.getElementById('btn-checkin');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Registrando...';esconderResultado();
+
+  try{
+    const agora=new Date();
+    const limite30d=new Date(agora-30*24*60*60*1000).toISOString();
+    const vsAntes=await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(limite30d)}&select=id`);
+    const visitasAntes=vsAntes.length;
+    const inicioDia=inicioDiaHojeSP();
+    const recentesHoje=await sbGet(`visitas?cpf=eq.${cpfLimpo}&valida=eq.true&data_hora=gte.${encodeURIComponent(inicioDia)}&select=id`);
+    const valida=recentesHoje.length===0;
+    await fetch(`${SUPABASE_URL}/rest/v1/visitas`,{method:'POST',headers:{...hdrs(),'Prefer':'return=minimal'},body:JSON.stringify({cpf:cpfLimpo,data_hora:agora.toISOString(),metodo:modoVitoria?'cpf':'qr',valida,vendedora_id:vendedora||null,loja_id:'sao_caetano'})});
+    const clientes=await sbGet(`clientes_club?cpf=eq.${cpfLimpo}&select=tier,saldo_cashback,visitas_30d,nome`);
+    const cliente=clientes[0]||{};
+    if(valida||clienteNovo){
+      const total=valida?(visitasAntes+1):visitasAntes;
+      const novoTier=total>=3?'ouro':total===2?'prata':'bronze';
+      const expiraEm=new Date(agora.getTime()+90*24*60*60*1000).toISOString().split('T')[0];
+      const method=clientes.length>0?'PATCH':'POST';
+      const url=method==='PATCH'?`${SUPABASE_URL}/rest/v1/clientes_club?cpf=eq.${cpfLimpo}`:`${SUPABASE_URL}/rest/v1/clientes_club`;
+      const payload={cpf:cpfLimpo,tier:novoTier,visitas_30d:total,ultima_visita:agora.toISOString(),saldo_expira_em:expiraEm,atualizado_em:agora.toISOString()};
+      if(clienteNovo&&nascInput){payload.data_nascimento=nascInput;}
+      await fetch(url,{method,headers:{...hdrs(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(payload)});
+      cliente.tier=novoTier;cliente.visitas_30d=total;
+    }
+    mostrarResultado(cpfLimpo,cliente,valida,clienteNovo);
+    if(modoVitoria)adicionarLista(cpfLimpo,cliente.tier||'bronze',valida);
+    clienteNovo=false;
+  }catch(err){mostrarErro('Erro ao registrar. Tente novamente.');console.error(err);}
+  finally{btn.disabled=false;btn.innerHTML='Confirmar Visita';}
+}
+
+function mostrarResultado(cpf,cliente,valida,isNovo){
+  const div=document.getElementById('resultado');
+  const tier=cliente.tier||'bronze';const info=tierInfo(tier);
+  const saldo=parseFloat(cliente.saldo_cashback||0).toFixed(2);const visitas=cliente.visitas_30d||1;
+  if(!valida){
+    div.innerHTML=`<div class="aviso-box">Você já registrou uma visita hoje! ⏰<br><span style="font-size:12px;opacity:0.7;margin-top:4px;display:block">Volte amanhã para acumular mais pontos.</span></div><button class="btn-novo" onclick="resetar()">Nova consulta</button>`;
+  }else{
+    const proxTier=tier==='bronze'?`Mais ${2-visitas} visita(s) para Prata`:tier==='prata'?`Mais ${3-visitas} visita(s) para Ouro VIP`:'Você é Ouro VIP! 🎉';
+    const msgBemVinda=isNovo?`<div style="background:rgba(3,187,133,0.08);border:1px solid rgba(3,187,133,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--verde)">🎉 Cadastro concluído! Seja bem-vinda ao Zilloah Club!</div>`:'';
+    div.innerHTML=`${msgBemVinda}<div class="tier-badge ${info.classe}">${info.emoji} ${info.label}</div><div class="resultado-msg">Check-in registrado!</div><div class="resultado-sub">Você tem <b>${info.cashback}</b> de cashback nas compras hoje.<br><small style="opacity:0.6">${proxTier}</small></div><div class="saldo-box"><div><div class="saldo-label">Saldo disponível</div><div style="font-size:11px;color:#555;margin-top:2px">Cashback acumulado</div></div><div class="saldo-valor">R$${saldo}</div></div><button class="btn-novo" onclick="resetar()">Nova visita</button>`;
+  }
+  div.classList.add('visivel');document.getElementById('formulario').style.display='none';
+}
 
 function mostrarErro(msg){const div=document.getElementById('resultado');div.innerHTML=`<div class="erro-box">${msg}</div><button class="btn-novo" onclick="resetar()">Tentar novamente</button>`;div.classList.add('visivel');document.getElementById('formulario').style.display='none';}
 function esconderResultado(){const div=document.getElementById('resultado');div.classList.remove('visivel');div.innerHTML='';}
 function resetar(){clienteNovo=false;esconderResultado();document.getElementById('formulario').style.display='block';document.getElementById('cpf-input').value='';document.getElementById('nasc-input').value='';document.getElementById('campo-nascimento').style.display='none';document.getElementById('banner-novo').classList.remove('visivel');document.getElementById('btn-checkin').innerHTML='Confirmar Visita';document.getElementById('cpf-input').focus();}
-
 function adicionarLista(cpf,tier,valida){const info=tierInfo(tier);const hora=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});const cpfFmt=cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');checkinsHoje.unshift({cpf:cpfFmt,tier,valida,hora});document.getElementById('num-checkins').textContent=checkinsHoje.filter(c=>c.valida).length;const item=document.createElement('div');item.className='checkin-item';item.innerHTML=`<div><div class="checkin-cpf">${cpfFmt}</div><div class="checkin-info">${info.emoji} ${info.label}${valida?'':' · <span style="color:#E05C5C">duplicata</span>'}</div></div><div class="checkin-hora">${hora}</div>`;document.getElementById('lista-checkins').insertBefore(item,document.getElementById('lista-checkins').firstChild);}
 
 init();
