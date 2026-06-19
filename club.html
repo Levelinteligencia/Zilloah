@@ -10,6 +10,7 @@
   --preto:#090909;--card:#111;--card2:#161616;--borda:#222;--borda2:#2a2a2a;
   --txt:#f0f0f0;--txt2:#888;--txt3:#555;
   --bronze:#CD7F32;--prata:#A8A9AD;--ouro:#C9A84C;
+  --insta:#ff6b8a;--insta-dim:rgba(220,39,67,0.1);--insta-borda:rgba(220,39,67,0.3);
   --r:14px;--fonte:'Inter',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -75,6 +76,9 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
 .bar-ouro .bar-inner{background:var(--ouro)}
 .td-saldo{text-align:right;font-weight:700;color:var(--ouro)}
 .td-ultima{color:var(--txt3);font-size:12px}
+.insta-badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:100px;display:inline-block;margin-top:3px}
+.insta-badge.disponivel{color:var(--insta);background:var(--insta-dim);border:1px solid var(--insta-borda)}
+.insta-badge.usado{color:var(--txt3);background:rgba(255,255,255,.04);border:1px solid var(--borda2)}
 .sem-dados{padding:48px;text-align:center;color:var(--txt3);font-size:14px}
 .sidebar{display:flex;flex-direction:column;gap:16px}
 .detalhe-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;}
@@ -97,6 +101,14 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
 .pv-step.ativo-bronze{background:var(--bronze)}
 .pv-step.ativo-prata{background:var(--prata)}
 .pv-step.ativo-ouro{background:var(--ouro)}
+.insta-section{margin-top:16px;padding-top:16px;border-top:1px solid var(--borda)}
+.insta-section-label{font-size:11px;color:var(--txt3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.insta-status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.insta-status-disponivel{font-size:13px;font-weight:600;color:var(--insta)}
+.insta-status-usado{font-size:13px;color:var(--txt3)}
+.btn-insta-marcar{width:100%;background:var(--insta-dim);border:1px solid var(--insta-borda);border-radius:8px;padding:9px;color:var(--insta);font-size:12px;font-family:var(--fonte);font-weight:600;cursor:pointer;transition:.2s;letter-spacing:.05em}
+.btn-insta-marcar:hover{background:rgba(220,39,67,0.18)}
+.btn-insta-marcar:disabled{opacity:0.45;cursor:not-allowed}
 .checkins-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;max-height:320px;display:flex;flex-direction:column;}
 .checkins-card .painel-header{flex-shrink:0}
 .checkins-lista-dia{overflow-y:auto;flex:1}
@@ -178,6 +190,14 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
             <div class="detalhe-row"><span class="dr-label">Ultima visita</span><span class="dr-valor" id="det-ultima">-</span></div>
             <div class="detalhe-row"><span class="dr-label">Saldo expira em</span><span class="dr-valor" id="det-expira">-</span></div>
             <div class="progress-visitas"><div class="pv-label">Progresso de nível</div><div class="pv-steps" id="det-steps"></div></div>
+            <div class="insta-section">
+              <div class="insta-section-label">📸 Desconto Instagram (10%)</div>
+              <div class="insta-status-row">
+                <span id="det-insta-status">—</span>
+                <span id="det-insta-data" style="font-size:11px;color:var(--txt3)"></span>
+              </div>
+              <button class="btn-insta-marcar" id="btn-insta-marcar" onclick="marcarInstaUsado()">Marcar desconto como usado</button>
+            </div>
           </div>
         </div>
       </div>
@@ -226,10 +246,10 @@ function setFiltro(tier,el){
 }
 function tierInfo(tier){
   return{
-    ouro:  {emoji:'\uD83E\uDD47',label:'Ouro VIP',cashback:'12%'},
-    prata: {emoji:'\uD83E\uDD48',label:'Prata',   cashback:'8%'},
-    bronze:{emoji:'\uD83E\uDD49',label:'Bronze',  cashback:'4%'},
-  }[tier]||{emoji:'\uD83E\uDD49',label:'Bronze',cashback:'4%'};
+    ouro:  {emoji:'🥇',label:'Ouro VIP',cashback:'12%'},
+    prata: {emoji:'🥈',label:'Prata',   cashback:'8%'},
+    bronze:{emoji:'🥉',label:'Bronze',  cashback:'4%'},
+  }[tier]||{emoji:'🥉',label:'Bronze',cashback:'4%'};
 }
 function cpfMask(cpf){if(!cpf)return'—';return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');}
 function formatarData(iso){const d=new Date(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
@@ -244,7 +264,10 @@ function renderTabela(lista){
     const tier=c.tier||'bronze',tInfo=tierInfo(tier),visitas=c.visitas_30d||0;
     const maxBar=tier==='bronze'?1:tier==='prata'?2:3,pct=Math.min((visitas/maxBar)*100,100);
     const saldo=parseFloat(c.saldo_cashback||0).toFixed(2),ultima=c.ultima_visita?formatarData(c.ultima_visita):'—';
-    tr.innerHTML=`<td><div class="td-nome">${c.nome||cpfMask(c.cpf)}</div><div class="td-cpf">${cpfMask(c.cpf)}</div></td><td><div class="tier-pill tp-${tier}">${tInfo.emoji} ${tInfo.label}</div></td><td class="td-visitas"><div class="visitas-bar"><span style="font-size:13px;font-weight:700;color:var(--txt);min-width:18px">${visitas}</span><div class="bar-outer bar-${tier}"><div class="bar-inner" style="width:${pct}%"></div></div></div></td><td class="td-saldo">R$ ${saldo}</td><td class="td-ultima">${ultima}</td>`;
+    const instaBadge=c.desconto_insta_usado
+      ?'<div class="insta-badge usado">✓ Insta usado</div>'
+      :'<div class="insta-badge disponivel">📸 Insta disponível</div>';
+    tr.innerHTML=`<td><div class="td-nome">${c.nome||cpfMask(c.cpf)}</div><div class="td-cpf">${cpfMask(c.cpf)}</div>${instaBadge}</td><td><div class="tier-pill tp-${tier}">${tInfo.emoji} ${tInfo.label}</div></td><td class="td-visitas"><div class="visitas-bar"><span style="font-size:13px;font-weight:700;color:var(--txt);min-width:18px">${visitas}</span><div class="bar-outer bar-${tier}"><div class="bar-inner" style="width:${pct}%"></div></div></div></td><td class="td-saldo">R$ ${saldo}</td><td class="td-ultima">${ultima}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -264,7 +287,35 @@ function mostrarDetalhe(c){
   const badge=document.getElementById('det-tier-badge');badge.textContent=`${tInfo.emoji} ${tInfo.label}`;badge.className='detalhe-tier-grande tier-pill tp-'+tier;
   const steps=document.getElementById('det-steps');steps.innerHTML='';
   for(let i=0;i<3;i++){const s=document.createElement('div');s.className='pv-step'+(i<visitas?` ativo-${tier}`:'');steps.appendChild(s);}
+  // Instagram discount
+  const statusEl=document.getElementById('det-insta-status');
+  const dataEl=document.getElementById('det-insta-data');
+  const btnMarcar=document.getElementById('btn-insta-marcar');
+  if(c.desconto_insta_usado){
+    statusEl.textContent='✓ Já utilizado';statusEl.className='insta-status-usado';
+    dataEl.textContent=c.desconto_insta_usado_em?formatarData(c.desconto_insta_usado_em):'';
+    btnMarcar.style.display='none';
+  }else{
+    statusEl.textContent='📸 Disponível — 10% off';statusEl.className='insta-status-disponivel';
+    dataEl.textContent='';
+    btnMarcar.style.display='block';btnMarcar.disabled=false;btnMarcar.textContent='Marcar desconto como usado';
+  }
   filtrar();
+}
+async function marcarInstaUsado(){
+  if(!clienteSelecionado||clienteSelecionado.desconto_insta_usado)return;
+  const btn=document.getElementById('btn-insta-marcar');
+  btn.disabled=true;btn.textContent='Salvando...';
+  const agora=new Date().toISOString();
+  await fetch(`${SURL}/rest/v1/clientes_club?cpf=eq.${clienteSelecionado.cpf}`,{
+    method:'PATCH',headers:{...hdrs(),'Prefer':'return=minimal'},
+    body:JSON.stringify({desconto_insta_usado:true,desconto_insta_usado_em:agora})
+  });
+  clienteSelecionado.desconto_insta_usado=true;
+  clienteSelecionado.desconto_insta_usado_em=agora;
+  const idx=todosClientes.findIndex(c=>c.cpf===clienteSelecionado.cpf);
+  if(idx>=0){todosClientes[idx].desconto_insta_usado=true;todosClientes[idx].desconto_insta_usado_em=agora;}
+  mostrarDetalhe(clienteSelecionado);
 }
 function renderCheckins(checkins){
   const lista=document.getElementById('checkins-lista'),validos=checkins.filter(c=>c.valida);
