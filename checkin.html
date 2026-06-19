@@ -26,6 +26,13 @@
   .banner-novo-titulo{font-size:14px;font-weight:700;color:var(--verde);margin-bottom:4px}
   .banner-novo-texto{font-size:12px;color:var(--branco-apagado);line-height:1.5}
 
+  /* Banner Instagram */
+  .banner-insta{background:rgba(220,39,67,0.08);border:1px solid rgba(220,39,67,0.25);border-radius:12px;padding:16px;margin-bottom:16px}
+  .banner-insta-titulo{font-size:14px;font-weight:700;color:#ff6b8a;margin-bottom:6px}
+  .banner-insta-texto{font-size:12px;color:var(--branco-apagado);line-height:1.5;margin-bottom:12px}
+  .btn-insta{display:flex;align-items:center;justify-content:center;gap:8px;background:#dc2743;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:8px;text-decoration:none;letter-spacing:0.05em;transition:opacity 0.2s}
+  .btn-insta:active{opacity:0.85}
+
   .btn-checkin{width:100%;background:var(--verde);border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;font-family:var(--fonte);letter-spacing:0.1em;text-transform:uppercase;color:var(--preto);cursor:pointer;transition:opacity 0.2s,transform 0.1s;margin-top:8px}
   .btn-checkin:active{transform:scale(0.98)}
   .btn-checkin:disabled{opacity:0.4;cursor:not-allowed}
@@ -99,6 +106,15 @@
     <div class="campo-grupo" id="campo-vendedora" style="display:none">
       <label class="campo-label" for="vendedora-input">Vendedora</label>
       <input type="text" id="vendedora-input" class="campo-input" placeholder="Nome da vendedora" style="font-size:16px" autocomplete="off">
+    </div>
+
+    <!-- BANNER INSTAGRAM — ganhe mais 10% -->
+    <div class="banner-insta">
+      <div class="banner-insta-titulo">📸 Ganhe mais 10% de desconto!</div>
+      <div class="banner-insta-texto">Siga a Zilloah no Instagram e use em qualquer compra — uma vez, sem prazo para usar.</div>
+      <a href="https://www.instagram.com/zilloahsaocaetanops" target="_blank" class="btn-insta">
+        Seguir no Instagram →
+      </a>
     </div>
 
     <button class="btn-checkin" id="btn-checkin" onclick="fazerCheckin()">Confirmar Visita</button>
