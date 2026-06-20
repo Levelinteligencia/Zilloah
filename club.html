@@ -115,7 +115,7 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
 .ci-item{display:flex;justify-content:space-between;align-items:center;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03);animation:slideIn .3s ease;}
 @keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
 .ci-item:last-child{border-bottom:none}
-.ci-cpf{font-size:13px;font-weight:600;color:var(--txt);font-family:monospace}
+.ci-nome{font-size:13px;font-weight:600;color:var(--txt)}
 .ci-meta{font-size:11px;color:var(--txt3);margin-top:2px}
 .ci-hora{font-size:11px;color:var(--txt3);font-family:monospace}
 .ci-vazio{padding:24px;text-align:center;color:var(--txt3);font-size:13px}
@@ -188,6 +188,7 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
             <div class="detalhe-row"><span class="dr-label">Cashback ativo</span><span class="dr-valor" id="det-cashback">-</span></div>
             <div class="detalhe-row"><span class="dr-label">Visitas (30 dias)</span><span class="dr-valor" id="det-visitas">0</span></div>
             <div class="detalhe-row"><span class="dr-label">Ultima visita</span><span class="dr-valor" id="det-ultima">-</span></div>
+            <div class="detalhe-row"><span class="dr-label">WhatsApp</span><span class="dr-valor" id="det-whatsapp">—</span></div>
             <div class="detalhe-row"><span class="dr-label">Saldo expira em</span><span class="dr-valor" id="det-expira">-</span></div>
             <div class="progress-visitas"><div class="pv-label">Progresso de nível</div><div class="pv-steps" id="det-steps"></div></div>
             <div class="insta-section">
@@ -277,17 +278,18 @@ function mostrarDetalhe(c){
   document.getElementById('detalhe-conteudo').style.display='block';
   const tier=c.tier||'bronze',tInfo=tierInfo(tier);
   const saldo=parseFloat(c.saldo_cashback||0).toFixed(2).replace('.',','),visitas=c.visitas_30d||0;
-  document.getElementById('det-nome').textContent=c.nome||'Cliente';
+  document.getElementById('det-nome').textContent=c.nome||cpfMask(c.cpf);
   document.getElementById('det-cpf').textContent=cpfMask(c.cpf);
   document.getElementById('det-saldo').textContent=`R$ ${saldo}`;
   document.getElementById('det-cashback').textContent=tInfo.cashback;
   document.getElementById('det-visitas').textContent=`${visitas} visita${visitas!==1?'s':''}`;
   document.getElementById('det-ultima').textContent=c.ultima_visita?formatarData(c.ultima_visita):'—';
+  const waEl=document.getElementById('det-whatsapp');
+  if(c.whatsapp){const wFmt=c.whatsapp.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');waEl.innerHTML=`<a href="https://wa.me/55${c.whatsapp}" target="_blank" style="color:var(--verde);text-decoration:none">${wFmt} ↗</a>`;}else{waEl.textContent='—';}
   document.getElementById('det-expira').textContent=c.saldo_expira_em||'—';
   const badge=document.getElementById('det-tier-badge');badge.textContent=`${tInfo.emoji} ${tInfo.label}`;badge.className='detalhe-tier-grande tier-pill tp-'+tier;
   const steps=document.getElementById('det-steps');steps.innerHTML='';
   for(let i=0;i<3;i++){const s=document.createElement('div');s.className='pv-step'+(i<visitas?` ativo-${tier}`:'');steps.appendChild(s);}
-  // Instagram discount
   const statusEl=document.getElementById('det-insta-status');
   const dataEl=document.getElementById('det-insta-data');
   const btnMarcar=document.getElementById('btn-insta-marcar');
@@ -324,8 +326,10 @@ function renderCheckins(checkins){
   lista.innerHTML='';
   checkins.slice(0,20).forEach(c=>{
     const hora=new Date(c.data_hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const nomeRef=todosClientes.find(x=>x.cpf===c.cpf);
+    const nomeExib=nomeRef?.nome||cpfMask(c.cpf);
     const div=document.createElement('div');div.className='ci-item';
-    div.innerHTML=`<div><div class="ci-cpf">${cpfMask(c.cpf)}</div><div class="ci-meta">${c.valida?'<span style="color:var(--verde)">&#10003; Válida</span>':'<span style="color:#E05C5C">Duplicata</span>'}</div></div><div class="ci-hora">${hora}</div>`;
+    div.innerHTML=`<div><div class="ci-nome">${nomeExib}</div><div class="ci-meta">${cpfMask(c.cpf)} · ${c.valida?'<span style="color:var(--verde)">&#10003; Válida</span>':'<span style="color:#E05C5C">Duplicata</span>'}</div></div><div class="ci-hora">${hora}</div>`;
     lista.appendChild(div);
   });
 }
